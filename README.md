@@ -1,6 +1,6 @@
 # rust_annie
 
-[![Build & Test](https://github.com/maxprogrammer007/Annie/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/rust_annie/actions/workflows/ci.yml)  
+[![Build & Test](https://github.com/maxprogrammer007/Annie/actions/workflows/ci.yml/badge.svg)](https://github.com/maxprogrammer007/Annie/actions/workflows/ci.yml)  
 [![PyPI](https://img.shields.io/pypi/v/rust-annie.svg)](https://pypi.org/project/rust-annie)  
 [![Crates.io](https://img.shields.io/crates/v/rust_annie.svg)](https://crates.io/crates/rust_annie)  
 [![License](https://img.shields.io/crates/l/rust_annie.svg)](LICENSE)
