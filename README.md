@@ -1,9 +1,7 @@
-# rust_annie
+# Rust-annie
 
-[![Build & Test](https://github.com/maxprogrammer007/Annie/actions/workflows/ci.yml/badge.svg)](https://github.com/maxprogrammer007/Annie/actions/workflows/ci.yml)  
 [![PyPI](https://img.shields.io/pypi/v/rust-annie.svg)](https://pypi.org/project/rust-annie)  
-[![Crates.io](https://img.shields.io/crates/v/rust_annie.svg)](https://crates.io/crates/rust_annie)  
-[![License](https://img.shields.io/crates/l/rust_annie.svg)](LICENSE)
+
 
 A lightning-fast, Rust-powered brute-force k-NN library for Python, with optional batch queries, thread-safety, and on-disk persistence.
 
