@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org).
   ```python
   from rust_annie import Distance
   idx = AnnIndex(16, Distance.MANHATTAN)
-```
+
 
 * `Distance.MANHATTAN` class attribute and `__repr__` value.
 
@@ -74,4 +74,4 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 * Prototype implementation of brute-force k-NN index in Rust.
  this in place, anyone browsing your repo or reading release notes on PyPI will immediately see what changed in each version.
-```
+
