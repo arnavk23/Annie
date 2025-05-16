@@ -29,7 +29,7 @@ A lightning-fast, Rust-powered brute-force k-NN library for Python, with optiona
 
 ## 🚀 Features
 
-- **Ultra-fast brute-force** k-NN search (Euclidean & Cosine)  
+- **Ultra-fast brute-force** k-NN search (Euclidean , Cosine, Manhattan)  
 - **Batch** queries over multiple vectors  
 - **Thread-safe** wrapper with GIL release for true concurrency  
 - **Zero-copy** NumPy integration (via PyO3 & rust-numpy)  
@@ -165,7 +165,7 @@ Create a new brute-force index.
 
 ### `rust_annie.Distance`
 
-Enum: `Distance.EUCLIDEAN`, `Distance.COSINE`
+Enum: `Distance.EUCLIDEAN`, `Distance.COSINE`.`Distance.MANHATTAN`
 
 ### `rust_annie.ThreadSafeAnnIndex`
 
