@@ -10,25 +10,50 @@ use crate::storage::{save_index, load_index};
 use crate::metrics::Distance;
 use crate::errors::RustAnnError;
 
-/// A brute-force k-NN index with cached norms, Rayon parallelism, and L1/L2/Cosine support.
+/// A brute-force k-NN index with cached norms, Rayon parallelism,
+/// and support for L1, L2, Cosine, Chebyshev, and Minkowski-p distances.
 #[pyclass]
 #[derive(Serialize, Deserialize)]
 pub struct AnnIndex {
     dim: usize,
     metric: Distance,
+    /// If Some(p), use Minkowski-p distance instead of `metric`.
+    minkowski_p: Option<f32>,
     /// Stored entries as (id, vector, squared_norm) tuples.
     entries: Vec<(i64, Vec<f32>, f32)>,
 }
 
 #[pymethods]
 impl AnnIndex {
-    /// Create a new index for `dim`-dimensional vectors with the given metric.
+    /// Create a new index for unit-variant metrics (Euclidean, Cosine, Manhattan, Chebyshev).
     #[new]
     pub fn new(dim: usize, metric: Distance) -> PyResult<Self> {
         if dim == 0 {
             return Err(RustAnnError::py_err("Dimension must be > 0"));
         }
-        Ok(AnnIndex { dim, metric, entries: Vec::new() })
+        Ok(AnnIndex {
+            dim,
+            metric,
+            minkowski_p: None,
+            entries: Vec::new(),
+        })
+    }
+
+    /// Create a new index using Minkowski-p distance (p > 0).
+    #[staticmethod]
+    pub fn new_minkowski(dim: usize, p: f32) -> PyResult<Self> {
+        if dim == 0 {
+            return Err(RustAnnError::py_err("Dimension must be > 0"));
+        }
+        if p <= 0.0 {
+            return Err(RustAnnError::py_err("`p` must be > 0 for Minkowski distance"));
+        }
+        Ok(AnnIndex {
+            dim,
+            metric: Distance::Euclidean, // placeholder
+            minkowski_p: Some(p),
+            entries: Vec::new(),
+        })
     }
 
     /// Add a batch of vectors (shape: N×dim) with integer IDs.
@@ -50,7 +75,7 @@ impl AnnIndex {
                     "Expected dimension {}, got {}", self.dim, v.len()
                 )));
             }
-            let sq_norm = v.iter().map(|x| x*x).sum::<f32>();
+            let sq_norm = v.iter().map(|x| x * x).sum::<f32>();
             self.entries.push((id, v, sq_norm));
         }
         Ok(())
@@ -73,7 +98,7 @@ impl AnnIndex {
         k: usize,
     ) -> PyResult<(PyObject, PyObject)> {
         let q = query.as_slice()?;
-        let q_sq = q.iter().map(|x| x*x).sum::<f32>();
+        let q_sq = q.iter().map(|x| x * x).sum::<f32>();
 
         // Release the GIL for the heavy compute:
         let result: PyResult<(Vec<i64>, Vec<f32>)> = py.allow_threads(|| {
@@ -87,7 +112,7 @@ impl AnnIndex {
         ))
     }
 
-    /// Batch‐search k nearest neighbors for each row in an (N×dim) array.
+    /// Batch-search k nearest neighbors for each row in an (N×dim) array.
     pub fn search_batch(
         &self,
         py: Python,
@@ -104,7 +129,7 @@ impl AnnIndex {
                 .map(|i| {
                     let row = arr.row(i);
                     let q: Vec<f32> = row.to_vec();
-                    let q_sq = q.iter().map(|x| x*x).sum::<f32>();
+                    let q_sq = q.iter().map(|x| x * x).sum::<f32>();
                     // safe unwrap: dims validated
                     self.inner_search(&q, q_sq, k).unwrap()
                 })
@@ -112,7 +137,7 @@ impl AnnIndex {
         });
 
         // Flatten the results
-        let mut all_ids   = Vec::with_capacity(n * k);
+        let mut all_ids = Vec::with_capacity(n * k);
         let mut all_dists = Vec::with_capacity(n * k);
         for (ids, dists) in results {
             all_ids.extend(ids);
@@ -120,12 +145,10 @@ impl AnnIndex {
         }
 
         // Build (n × k) ndarrays
-        let ids_arr: Array2<i64> =
-            Array2::from_shape_vec((n, k), all_ids)
-                .map_err(|e| RustAnnError::py_err(format!("Reshape ids failed: {}", e)))?;
-        let dists_arr: Array2<f32> =
-            Array2::from_shape_vec((n, k), all_dists)
-                .map_err(|e| RustAnnError::py_err(format!("Reshape dists failed: {}", e)))?;
+        let ids_arr: Array2<i64> = Array2::from_shape_vec((n, k), all_ids)
+            .map_err(|e| RustAnnError::py_err(format!("Reshape ids failed: {}", e)))?;
+        let dists_arr: Array2<f32> = Array2::from_shape_vec((n, k), all_dists)
+            .map_err(|e| RustAnnError::py_err(format!("Reshape dists failed: {}", e)))?;
 
         Ok((
             ids_arr.into_pyarray(py).to_object(py),
@@ -148,7 +171,7 @@ impl AnnIndex {
 }
 
 impl AnnIndex {
-    /// Core search logic covering L2, Cosine, and L1 (Manhattan).
+    /// Core search logic covering L2, Cosine, L1 (Manhattan), L∞ (Chebyshev), and Lₚ.
     fn inner_search(&self, q: &[f32], q_sq: f32, k: usize) -> PyResult<(Vec<i64>, Vec<f32>)> {
         if q.len() != self.dim {
             return Err(RustAnnError::py_err(format!(
@@ -156,28 +179,35 @@ impl AnnIndex {
             )));
         }
 
-        // Parallel distance computation over all entries
+        let p_opt = self.minkowski_p;
         let mut results: Vec<(i64, f32)> = self.entries
             .par_iter()
             .map(|(id, vec, vec_sq)| {
-                let dot = vec.iter().zip(q.iter()).map(|(x,y)| x*y).sum::<f32>();
-                let dist = match self.metric {
-                    Distance::Euclidean => {
-                        // L2: sqrt(|v|^2 + |q|^2 − 2·dot)
-                        ((vec_sq + q_sq - 2.0*dot).max(0.0)).sqrt()
-                    }
-                    Distance::Cosine => {
-                        // 1 − (dot / (‖v‖‖q‖)), clamped ≥ 0
-                        let denom = vec_sq.sqrt().max(1e-12) * q_sq.sqrt().max(1e-12);
-                        (1.0 - (dot / denom)).max(0.0)
-                    }
-                    Distance::Manhattan => {
-                        // L1: sum |v_i − q_i|
-                        vec.iter().zip(q.iter())
-                            .map(|(x,y)| (x - y).abs())
-                            .sum::<f32>()
+                // dot only used by L2/Cosine
+                let dot = vec.iter().zip(q.iter()).map(|(x, y)| x * y).sum::<f32>();
+
+                let dist = if let Some(p) = p_opt {
+                    // Minkowski-p: (∑ |x-y|^p)^(1/p)
+                    let sum_p = vec.iter().zip(q.iter())
+                        .map(|(x, y)| (x - y).abs().powf(p))
+                        .sum::<f32>();
+                    sum_p.powf(1.0 / p)
+                } else {
+                    match self.metric {
+                        Distance::Euclidean => ((vec_sq + q_sq - 2.0 * dot).max(0.0)).sqrt(),
+                        Distance::Cosine    => {
+                            let denom = vec_sq.sqrt().max(1e-12) * q_sq.sqrt().max(1e-12);
+                            (1.0 - (dot / denom)).max(0.0)
+                        }
+                        Distance::Manhattan => vec.iter().zip(q.iter())
+                            .map(|(x, y)| (x - y).abs())
+                            .sum::<f32>(),
+                        Distance::Chebyshev => vec.iter().zip(q.iter())
+                            .map(|(x, y)| (x - y).abs())
+                            .fold(0.0, f32::max),
                     }
                 };
+
                 (*id, dist)
             })
             .collect();
@@ -186,9 +216,9 @@ impl AnnIndex {
         results.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
         results.truncate(k);
 
-        // Split into separate vectors
-        let ids   = results.iter().map(|(i,_)| *i).collect();
-        let dists = results.iter().map(|(_,d)| *d).collect();
+        // Split into IDs and distances
+        let ids   = results.iter().map(|(i, _)| *i).collect();
+        let dists = results.iter().map(|(_, d)| *d).collect();
         Ok((ids, dists))
     }
 }
