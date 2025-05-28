@@ -8,15 +8,15 @@
 
 | Level     | Description                           | Points |
 | --------- | ------------------------------------- | ------ |
-| 🟢 Easy   | Good for first-time contributors      | 10     |
-| 🟡 Medium | Requires some technical understanding | 20     |
-| 🔴 Hard   | Involves core features or research    | 30     |
+| 🟢 Easy   | Good for first-time contributors      | 20     |
+| 🟡 Medium | Requires some technical understanding | 30     |
+| 🔴 Hard   | Involves core features or research    | 40     |
 
 Here’s a proposed **Contributor Checklist** for Annie, with tasks grouped by difficulty and point-values. Feel free to pick any item, leave a comment on the issue, and submit a PR when you’re ready!
 
 ---
 
-## 🟢 Easy (10 points)
+## 🟢 Easy (20 points)
 
 * [ ] **Add usage example to README**
   Show how to build and query the brute-force `AnnIndex` in Python.
@@ -29,7 +29,7 @@ Here’s a proposed **Contributor Checklist** for Annie, with tasks grouped by d
 * [ ] **Add badges to README**
   CI status, PyPI version, license, and docs build.
 
-## 🟠 Medium (20 points)
+## 🟠 Medium (30 points)
 
 * [ ] **Implement Manhattan & Chebyshev in the brute-force index**
   Add `Distance::Manhattan` and `Distance::Chebyshev` to `src/metrics.rs` and update `inner_search`.
@@ -42,7 +42,7 @@ Here’s a proposed **Contributor Checklist** for Annie, with tasks grouped by d
 * [ ] **Example notebooks**
   Create a Jupyter notebook demonstrating speedup vs pure-Python and HNSW integration.
 
-## 🔴 Hard (30 points)
+## 🔴 Hard (40 points)
 
 * [ ] **Trait-based backend refactor**
   Define an `AnnBackend` trait, implement both brute-force and HNSW backends, and dispatch in a single `AnnIndex`.
