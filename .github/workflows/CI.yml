@@ -208,7 +208,7 @@ jobs:
       - name: Run batch_ben.py on PR
         run: python scripts/batch_ben.py --output pr_batch.json
 
-        - name: Backup needed files
+      - name: Backup needed files
         run: |
           cp scripts/compare_results.py /tmp/compare_results.py
           cp pr_benchmark.json /tmp/pr_benchmark.json
