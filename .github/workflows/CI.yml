@@ -211,7 +211,7 @@ jobs:
       - name: Checkout main branch
         run: |
           git fetch origin main
-          git checkout origin/main
+          git checkout -B main origin/main
           pip install .
 
       - name: Run benchmark.py on main
