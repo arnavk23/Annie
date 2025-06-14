@@ -208,6 +208,12 @@ jobs:
       - name: Run batch_ben.py on PR
         run: python scripts/batch_ben.py --output pr_batch.json
 
+        - name: Backup needed files
+        run: |
+          cp scripts/compare_results.py /tmp/compare_results.py
+          cp pr_benchmark.json /tmp/pr_benchmark.json
+          cp pr_batch.json /tmp/pr_batch.json
+
       - name: Checkout main branch
         run: |
           git fetch origin main
@@ -221,7 +227,7 @@ jobs:
         run: python scripts/batch_ben.py --output base_batch.json
 
       - name: Compare benchmark results
-        run: python scripts/compare_results.py base_benchmark.json pr_benchmark.json
+        run: python /tmp/compare_results.py base_benchmark.json /tmp/pr_benchmark.json
 
       - name: Compare batch benchmark results
-        run: python scripts/compare_results.py base_batch.json pr_batch.json
+        run: python /tmp/compare_results.py base_batch.json /tmp/pr_batch.json
