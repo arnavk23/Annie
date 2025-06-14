@@ -226,8 +226,13 @@ jobs:
       - name: Run batch_ben.py on main
         run: python scripts/batch_ben.py --output base_batch.json
 
+      - name: Move base benchmark files to /tmp
+        run: |
+          cp base_benchmark.json /tmp/base_benchmark.json
+          cp base_batch.json /tmp/base_batch.json
+
       - name: Compare benchmark results
-        run: python /tmp/compare_results.py base_benchmark.json /tmp/pr_benchmark.json
+        run: python /tmp/compare_results.py /tmp/base_benchmark.json /tmp/pr_benchmark.json
 
       - name: Compare batch benchmark results
-        run: python /tmp/compare_results.py base_batch.json /tmp/pr_batch.json
+        run: python /tmp/compare_results.py /tmp/base_batch.json /tmp/pr_batch.json
