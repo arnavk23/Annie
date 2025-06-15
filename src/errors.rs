@@ -10,7 +10,7 @@ pub struct RustAnnError(pub String);
 impl RustAnnError {
     /// Create a generic Python exception (`Exception`) with the error type and error message.
     pub fn py_err(type_name: impl Into<String>, detail: impl Into<String>) -> PyErr {
-        let safe_type = type_name.into().replace(['\n', '\r'], " ");
+        let safe_type = type_name.into().replace(['\n', '\r', '[', ']'], " ");
         let safe_detail = detail.into().replace(['\n', '\r'], " ");
         let msg = format!("RustAnnError [{}]: {}", safe_type, safe_detail);
         PyException::new_err(msg)
