@@ -41,3 +41,4 @@ if __name__ == "__main__":
     if args.output:
         with open(args.output, "w") as f:
             json.dump(results, f)
+

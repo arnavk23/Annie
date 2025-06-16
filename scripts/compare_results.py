@@ -8,6 +8,7 @@ threshold = 0.05  # Allow 5% regression
 
 def check(key):
     b, c = baseline[key], current[key]
+    
     if key == "speedup":
         # For speedup, regression means "current < baseline"
         if (b - c) / b > threshold:
