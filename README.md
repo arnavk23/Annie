@@ -148,6 +148,7 @@ Measured on a 6-core CPU:
 | Pure-Python (NumPy - 𝑙2)        |       \~2.8 ms |
 | Rust AnnIndex single query       |       \~0.7 ms |
 | Rust AnnIndex batch (64 queries) |      \~0.23 ms |
+
 That’s a \~4× speedup vs. NumPy!
 
 ### 📊 [View Full Benchmark Dashboard →](https://programmers-paradise.github.io/Annie/)
@@ -238,5 +239,6 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 ## 📜 License
 
 This project is licensed under the **MIT License**. See [LICENSE](./LICENSE) for details.
-
+```
+```
 ---
