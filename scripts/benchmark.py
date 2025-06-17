@@ -1,42 +1,69 @@
-# benchmark.py
 import time
+import json
+import argparse
 import numpy as np
 from rust_annie import AnnIndex, Distance
+import os
+from datetime import datetime
 
 def pure_python_search(data, ids, q, k):
-    # data: (N,D), q: (D,)
-    # compute L2 distances and return top‐k
     dists = np.linalg.norm(data - q, axis=1)
     idx = np.argsort(dists)[:k]
     return ids[idx], dists[idx]
 
-def benchmark(N=10000, D=64, k=10, repeats=50):
-    # 1. Prepare random data
+def benchmark(N, D, k, repeats):
     data = np.random.rand(N, D).astype(np.float32)
-    ids  = np.arange(N, dtype=np.int64)
-    q    = data[0]
+    ids = np.arange(N, dtype=np.int64)
+    q = data[0]
 
-    # 2. Build Rust index
     idx = AnnIndex(D, Distance.EUCLIDEAN)
     idx.add(data, ids)
-    # warm-up
-    idx.search(q, k)
+    idx.search(q, k)  # warm-up
 
-    # 3. Benchmark Rust search
     t0 = time.perf_counter()
     for _ in range(repeats):
         idx.search(q, k)
     t_rust = (time.perf_counter() - t0) / repeats
 
-    # 4. Benchmark pure-Python search
     t0 = time.perf_counter()
     for _ in range(repeats):
         pure_python_search(data, ids, q, k)
     t_py = (time.perf_counter() - t0) / repeats
 
-    print(f"Rust avg search time:       {t_rust*1e3:8.3f} ms")
-    print(f"Pure-Python avg time:       {t_py*1e3:8.3f} ms")
-    print(f"Speedup (Python / Rust):    {t_py / t_rust:6.2f}×")
+    result = {
+        "N": N,
+        "D": D,
+        "k": k,
+        "repeats": repeats,
+        "rust_avg_ms": round(t_rust * 1e3, 4),
+        "python_avg_ms": round(t_py * 1e3, 4),
+        "speedup": round(t_py / t_rust, 4),
+        "timestamp": time.time()
+    }
+
+    return result
+
+def save_result(result, out_dir="benchmarks"):
+    os.makedirs(out_dir, exist_ok=True)
+    commit_hash = os.popen("git rev-parse --short HEAD").read().strip()
+    now = datetime.utcnow().strftime("%Y-%m-%dT%H%M%SZ")
+    filename = f"{out_dir}/{now}_{commit_hash}.json"
+    with open(filename, "w") as f:
+        json.dump(result, f, indent=2)
+    print(f"Benchmark saved to: {filename}")
 
 if __name__ == "__main__":
-    benchmark()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--N", type=int, default=10000)
+    parser.add_argument("--D", type=int, default=64)
+    parser.add_argument("--k", type=int, default=10)
+    parser.add_argument("--repeats", type=int, default=50)
+    parser.add_argument("--save", action="store_true", help="Save benchmark result to file")
+    args = parser.parse_args()
+
+    result = benchmark(args.N, args.D, args.k, args.repeats)
+
+    print(json.dumps(result, indent=2))
+
+    if args.save:
+        save_result(result)
