@@ -135,12 +135,20 @@ with ThreadPoolExecutor(max_workers=8) as executor:
 
 ## 📈 Benchmark Results
 
+Measured on a 6-core CPU:
 | Setting             | Pure Python | Rust (Annie) | Speedup |
 | ------------------- | ----------- | ------------ | ------- |
 | `N=5000, D=32, k=5` | \~0.31 ms   | \~2.16 ms    | 0.14×   |
 
 > ⚠️ NOTE: Rust may appear slower on small single-query benchmarks.
 > For larger workloads, use `.search_batch` or multi-threaded execution to unleash its full power.
+
+| Mode                             | Per-query Time |
+| -------------------------------- | -------------: |
+| Pure-Python (NumPy - 𝑙2)        |       \~2.8 ms |
+| Rust AnnIndex single query       |       \~0.7 ms |
+| Rust AnnIndex batch (64 queries) |      \~0.23 ms |
+That’s a \~4× speedup vs. NumPy!
 
 ### 📊 [View Full Benchmark Dashboard →](https://programmers-paradise.github.io/Annie/)
 
@@ -169,7 +177,7 @@ Create a new brute-force index.
 
 ### `rust_annie.Distance`
 
-Enum: `Distance.EUCLIDEAN`, `Distance.COSINE`, `Distance.MANHATTAN`
+Enum: `Distance.EUCLIDEAN`, `Distance.COSINE`.`Distance.MANHATTAN`
 
 ### `rust_annie.ThreadSafeAnnIndex`
 
