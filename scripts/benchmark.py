@@ -1,5 +1,4 @@
 # benchmark.py
-
 import time,json,argparse
 import numpy as np
 from rust_annie import AnnIndex, Distance
