@@ -52,7 +52,8 @@ pip install maturin
 maturin develop --release
 ````
 
----
+
+
 
 ## 🎉 Quick Start
 
@@ -239,6 +240,6 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 ## 📜 License
 
 This project is licensed under the **MIT License**. See [LICENSE](./LICENSE) for details.
+
 ```
 ```
----
