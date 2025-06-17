@@ -2,7 +2,8 @@
 
 ![Annie](https://github.com/Programmers-Paradise/.github/blob/main/ChatGPT%20Image%20May%2015,%202025,%2003_58_16%20PM.png?raw=true)
 
-[![PyPI](https://img.shields.io/pypi/v/rust-annie.svg)](https://pypi.org/project/rust-annie)
+[![PyPI](https://img.shields.io/pypi/v/rust-annie.svg)](https://pypi.org/project/rust-annie)  
+
 [![Benchmark Freshness](https://programmers-paradise.github.io/Annie/dashboard-badge.svg)](https://programmers-paradise.github.io/Annie/)
 
 A lightning-fast, Rust-powered brute-force k-NN library for Python, with optional batch queries, thread-safety, and on-disk persistence.
@@ -50,7 +51,7 @@ git clone https://github.com/yourusername/rust_annie.git
 cd rust_annie
 pip install maturin
 maturin develop --release
-````
+```
 
 
 
