@@ -34,8 +34,9 @@ jobs:
 
     - name: Install Python dependencies
       run: |
-        pip install maturin
-        pip install numpy pandas plotly jinja2
+       source .venv/bin/activate
+       pip install maturin
+       pip install numpy pandas plotly jinja2
 
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
