@@ -49,7 +49,7 @@ jobs:
     - name: Run benchmark
       run: |
         source .venv/bin/activate
-        python scripts/benchmark.py --N 5000 --D 32 --k 5 --repeats 10 --save
+        python scripts/benchmark.py --output benchmarks/latest.json
 
     - name: Generate dashboard + badge
       run: |
