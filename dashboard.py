@@ -17,6 +17,9 @@ def load_benchmarks(directory=BENCHMARK_DIR):
         path = os.path.join(directory, fname)
         with open(path) as f:
             data = json.load(f)
+        if "timestamp" not in data:
+            print(f"[WARN] Skipping {fname}: missing 'timestamp'")
+            continue
         data["timestamp"] = datetime.utcfromtimestamp(data["timestamp"])
         rows.append(data)
     return pd.DataFrame(rows)
@@ -67,6 +70,9 @@ def write_badge(output=BADGE_SVG):
 
 if __name__ == "__main__":
     df = load_benchmarks()
-    fig = plot_dashboard(df)
-    write_html(fig)
-    write_badge()
+    if df.empty:
+        print("No valid benchmark data found.")
+    else:
+        fig = plot_dashboard(df)
+        write_html(fig)
+        write_badge()
