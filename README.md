@@ -134,43 +134,50 @@ with ThreadPoolExecutor(max_workers=8) as executor:
 
 ---
 
-## Build and Query Brute force ANN Index in python (Complete Example):-
-### Steps:
+## Build and Query a Brute-Force AnnIndex in Python (Complete Example)
 
-- We initialize a `brute-force AnnIndex` with 128 dimensions and cosine distance.
-- Add a batch of randomly generated vectors, each with a unique ID.
+This section demonstrates a complete, beginner-friendly example of how to build and query a `brute-force AnnIndex` using Python.
+
+> A brute-force AnnIndex exhaustively compares the query vector with every vector in the dataset. Though it checks all vectors, it's **extremely fast** thanks to its underlying **Rust + SIMD** implementation.
+
+
+## Steps:
+
+- Initialize a `brute-force AnnIndex` with 128 dimensions and cosine distance.
+- Generate and add a batch of random vectors with unique IDs.
 - Perform a **top-5 nearest neighbor search** on a new query vector.
 - Print the IDs and distances of the closest matches.
 
-## Example -
-pip install rust-annie ## If not installed already
+Code :-
+
+Example
+
+pip install rust-annie  # if not installed already
+
 import numpy as np
+
 from rust_annie import AnnIndex, Distance
 
-# Step 1: Create a brute-force index for 128-dimensional vectors
 index = AnnIndex(dim=128, metric=Distance.COSINE)
 
-# Step 2: Generate some random data
-# Let's say we have 1000 vectors
 vectors = np.random.rand(1000, 128).astype(np.float32)
+
 ids = np.arange(1000, dtype=np.int64)
 
-# Step 3: Add these vectors to the index
 index.add(vectors, ids)
 
-# Step 4: Create a new vector to search
 query = np.random.rand(128).astype(np.float32)
 
-# Step 5: Perform the search to find the top 5 nearest neighbors
 top_ids, distances = index.search(query, k=5)
 
-# Step 6: Print results
 print("Top 5 nearest neighbors:")
+
 for i in range(5):
     print(f"ID: {top_ids[i]}, Distance: {distances[i]}")
 
+---
+Hence, this example showcases a complete usage of the AnnIndex from **Building to querying**.
 
-This example showcases a complete usage of the AnnIndex from **Building to querying**.
 
 ## 📈 Benchmark Results
 
