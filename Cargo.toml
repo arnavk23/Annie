@@ -1,6 +1,6 @@
 [package]
 name = "rust_annie"
-version = "0.1.3"
+version = "0.2-alpha"
 edition = "2021"
 
 [lib]
