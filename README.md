@@ -158,7 +158,9 @@ This section demonstrates a complete, beginner-friendly example of how to build 
 
 ```bash
 pip install rust-annie  # if not installed already
+```
 
+```python
 import numpy as np
 from rust_annie import AnnIndex, Distance
 
@@ -178,7 +180,6 @@ print("Top 5 nearest neighbors:")
 
 for i in range(5):
     print(f"ID: {top_ids[i]}, Distance: {distances[i]}")
-
 ```
 
 
