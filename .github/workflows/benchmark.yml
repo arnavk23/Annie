@@ -57,19 +57,17 @@ jobs:
 
     - name: Commit and push dashboard updates
       run: |
-        - name: Commit and push dashboard updates
-  run: |
-    git config user.name github-actions
-    git config user.email github-actions@github.com
-    git add -f benchmarks/*.json docs/index.html docs/dashboard-badge.svg
-    git commit -m "chore: update benchmark dashboard [skip ci]" || echo "No changes to commit"
-
-    # Determine the branch to push to
-    BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
-
-    if [ -n "$BRANCH" ]; then
-      git checkout "$BRANCH"
-      git push origin "$BRANCH"
-    else
-      echo "Not on a branch — skipping push."
-    fi
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add -f benchmarks/*.json docs/index.html docs/dashboard-badge.svg
+        git commit -m "chore: update benchmark dashboard [skip ci]" || echo "No changes to commit"
+        
+        # Determine the branch to push to
+        BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+        
+        if [ -n "$BRANCH" ]; then
+          git checkout "$BRANCH"
+          git push origin "$BRANCH"
+       else
+          echo "Not on a branch — skipping push."
+       fi
