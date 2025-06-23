@@ -27,14 +27,13 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Create and activate virtual environment
+    - name: Set up virtual environment
       run: |
         python -m venv .venv
-        source .venv/bin/activate
+        echo "source .venv/bin/activate" >> $GITHUB_ENV
 
     - name: Install Python dependencies
       run: |
-       source .venv/bin/activate
        pip install maturin
        pip install numpy pandas plotly jinja2
 
