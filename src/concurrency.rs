@@ -41,7 +41,9 @@ impl ThreadSafeAnnIndex {
     pub fn add(&self, py: Python, data: PyReadonlyArray2<f32>, ids: PyReadonlyArray1<i64>)
         -> PyResult<()>
     {
-        let mut guard = self.inner.write().unwrap();
+        let mut guard = self.inner.write().map_err(|e| {
+            PyErr::new::<PyRuntimeError, _>(format!("Lock poisoned: {}", e))
+        })?;
         guard.add(py, data, ids)
     }
 
