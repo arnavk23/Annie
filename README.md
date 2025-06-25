@@ -4,6 +4,8 @@
 
 [![PyPI](https://img.shields.io/pypi/v/rust-annie.svg)](https://pypi.org/project/rust-annie)  
 
+[![CI](https://github.com/Programmers-Paradise/rust-annie/actions/workflows/ci.yml/badge.svg)](https://github.com/Programmers-Paradise/rust-annie/actions/workflows/CI.yml)
+
 [![Benchmark Freshness](https://programmers-paradise.github.io/Annie/dashboard-badge.svg)](https://programmers-paradise.github.io/Annie/)
 
 A lightning-fast, Rust-powered brute-force k-NN library for Python, with optional batch queries, thread-safety, and on-disk persistence.
