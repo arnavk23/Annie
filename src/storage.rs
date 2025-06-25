@@ -7,7 +7,7 @@ use std::{
 };
 
 use bincode;
-use pyo3::prelude::*;
+
 use crate::errors::RustAnnError;
 use crate::index::AnnIndex;
 
