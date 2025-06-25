@@ -33,9 +33,11 @@ impl Distance {
 }
 
 pub fn euclidean(a: &[f32], b: &[f32]) -> f32 {
+    assert_eq!(a.len(), b.len(), "Input slices must have the same length");
     a.iter().zip(b).map(|(x, y)| (x - y).powi(2)).sum::<f32>().sqrt()
 }
 pub fn cosine(a: &[f32], b: &[f32]) -> f32 {
+    assert_eq!(a.len(), b.len(), "Input slices must have the same length");
     let dot_product = a.iter().zip(b).map(|(x, y)| x * y).sum::<f32>();
     let norm_a = a.iter().map(|x| x.powi(2)).sum::<f32>().sqrt();
     let norm_b = b.iter().map(|x| x.powi(2)).sum::<f32>().sqrt();
@@ -45,9 +47,11 @@ pub fn cosine(a: &[f32], b: &[f32]) -> f32 {
     1.0 - dot_product / (norm_a * norm_b)
 }
 pub fn manhattan(a: &[f32], b: &[f32]) -> f32 {
+    assert_eq!(a.len(), b.len(), "Input slices must have the same length");
     a.iter().zip(b).map(|(x, y)| (x - y).abs()).sum()
 }
 
 pub fn chebyshev(a: &[f32], b: &[f32]) -> f32 {
+    assert_eq!(a.len(), b.len(), "Input slices must have the same length");
     a.iter().zip(b).map(|(x, y)| (x - y).abs()).fold(0.0, f32::max)
 }
