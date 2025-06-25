@@ -3,11 +3,8 @@
 ![Annie](https://github.com/Programmers-Paradise/.github/blob/main/ChatGPT%20Image%20May%2015,%202025,%2003_58_16%20PM.png?raw=true)
 
 [![PyPI](https://img.shields.io/pypi/v/rust-annie.svg)](https://pypi.org/project/rust-annie)  
-
-[![CI](https://img.shields.io/badge/CI-white.svg)](https://github.com/Programmers-Paradise/rust-annie/actions/workflows/CI.yml)
-
+[![CI](https://img.shields.io/badge/CI-white.svg)](https://github.com/Programmers-Paradise/rust-annie/workflows/CI.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-
 [![Benchmark](https://img.shields.io/badge/benchmark-online-blue.svg)](https://programmers-paradise.github.io/Annie/)
 
 A lightning-fast, Rust-powered brute-force k-NN library for Python, with optional batch queries, thread-safety, and on-disk persistence.
