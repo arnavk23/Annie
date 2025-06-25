@@ -31,7 +31,7 @@ A lightning-fast, Rust-powered brute-force k-NN library for Python, with optiona
 
 ## 🚀 Features
 
-- **Ultra-fast brute-force** k-NN search (Euclidean , Cosine, Manhattan)  
+- **Ultra-fast brute-force** k-NN search (Euclidean, Cosine, Manhattan)  
 - **Batch** queries over multiple vectors  
 - **Thread-safe** wrapper with GIL release for true concurrency  
 - **Zero-copy** NumPy integration (via PyO3 & rust-numpy)  
@@ -53,9 +53,6 @@ cd rust_annie
 pip install maturin
 maturin develop --release
 ```
-
-
-
 
 ## 🎉 Quick Start
 
@@ -151,7 +148,6 @@ This section demonstrates a complete, beginner-friendly example of how to build 
 - Perform a top-5 nearest-neighbor search on a new query vector.
 - Print the IDs and distances of the closest matches.
 
-
 ---
 
 ### 💻 Code Example
@@ -183,7 +179,6 @@ print("Top 5 nearest neighbors:")
 for i in range(5):
     print(f"ID: {top_ids[i]}, Distance: {distances[i]}")
 ```
-
 
 ## 📈 Benchmark Results
 
@@ -230,7 +225,7 @@ Create a new brute-force index.
 
 ### `rust_annie.Distance`
 
-Enum: `Distance.EUCLIDEAN`, `Distance.COSINE`.`Distance.MANHATTAN`
+Enum: `Distance.EUCLIDEAN`, `Distance.COSINE`, `Distance.MANHATTAN`
 
 ### `rust_annie.ThreadSafeAnnIndex`
 
@@ -291,6 +286,3 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 ## 📜 License
 
 This project is licensed under the **MIT License**. See [LICENSE](./LICENSE) for details.
-
-```
-```
