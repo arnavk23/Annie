@@ -4,7 +4,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/rust-annie.svg)](https://pypi.org/project/rust-annie)  
 
-[![CI](https://github.com/Programmers-Paradise/rust-annie/actions/workflows/ci.yml/badge.svg)](https://github.com/Programmers-Paradise/rust-annie/actions/workflows/CI.yml)
+[![CI](https://img.shields.io/badge/CI-white.svg)](https://github.com/Programmers-Paradise/rust-annie/actions/workflows/CI.yml)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
