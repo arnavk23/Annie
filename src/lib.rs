@@ -1,6 +1,6 @@
 mod index;
 mod storage;
-mod metrics;
+pub mod metrics;
 mod errors;
 mod concurrency;
 

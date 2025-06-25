@@ -7,10 +7,7 @@ use std::{
 };
 
 use bincode;
-use serde::{Serialize, de::DeserializeOwned};
-
-use pyo3::exceptions::PyIOError;
-
+use pyo3::prelude::*;
 use crate::errors::RustAnnError;
 use crate::index::AnnIndex;
 
