@@ -111,6 +111,7 @@ impl AnnIndex {
 
         let q_sq = q.iter().map(|x| x * x).sum::<f32>();
 
+        // Release the GIL for the heavy compute:
         let result: PyResult<(Vec<i64>, Vec<f32>)> = py.allow_threads(|| {
             self.inner_search(q, q_sq, k)
         });
@@ -140,6 +141,8 @@ impl AnnIndex {
 
         let n = arr.nrows();
 
+        
+        // Release the GIL around the parallel batch:
         let results: Vec<(Vec<i64>, Vec<f32>)> = py.allow_threads(|| {
             (0..n)
                 .into_par_iter()
@@ -147,11 +150,13 @@ impl AnnIndex {
                     let row = arr.row(i);
                     let q: Vec<f32> = row.to_vec();
                     let q_sq = q.iter().map(|x| x * x).sum::<f32>();
+                    // safe unwrap: dims validated
                     self.inner_search(&q, q_sq, k).unwrap()
                 })
                 .collect::<Vec<_>>()
         });
 
+        // Flatten the results
         let mut all_ids = Vec::with_capacity(n * k);
         let mut all_dists = Vec::with_capacity(n * k);
         for (ids, dists) in results {
@@ -159,6 +164,7 @@ impl AnnIndex {
             all_dists.extend(dists);
         }
 
+        // Build (n × k) ndarrays
         let ids_arr: Array2<i64> = Array2::from_shape_vec((n, k), all_ids)
             .map_err(|e| RustAnnError::py_err("Reshape Error",format!("Reshape ids failed: {}", e)))?;
         let dists_arr: Array2<f32> = Array2::from_shape_vec((n, k), all_dists)
@@ -233,12 +239,12 @@ impl AnnIndex {
                 "Expected dimension {}, got {}", self.dim, q.len()
             )));
         }
-        
+
         let p_opt = self.minkowski_p;
         let mut results: Vec<(i64, f32)> = self.entries
             .par_iter()
             .map(|(id, vec, vec_sq)| {
-                 // dot only used by L2/Cosine
+                // dot only used by L2/Cosine
                 let dot = vec.iter().zip(q.iter()).map(|(x, y)| x * y).sum::<f32>();
 
                 let dist = if let Some(p) = p_opt {
@@ -262,6 +268,7 @@ impl AnnIndex {
                             .fold(0.0, f32::max),
                     }
                 };
+
                 (*id, dist)
             })
             .collect();
