@@ -17,6 +17,9 @@ def load_benchmarks(directory=BENCHMARK_DIR):
         path = os.path.join(directory, fname)
         with open(path) as f:
             data = json.load(f)
+        if "timestamp" not in data:
+            print(f"[WARN] Skipping {fname}: missing 'timestamp'")
+            continue
         data["timestamp"] = datetime.utcfromtimestamp(data["timestamp"])
         rows.append(data)
     return pd.DataFrame(rows)
@@ -51,14 +54,14 @@ def write_html(fig, output=OUTPUT_HTML):
     print(f"Dashboard saved to {output}")
 
 def write_badge(output=BADGE_SVG):
-    badge_template = Template("""
+    badge_template = Template(textwrap.dedent("""
     <svg xmlns="http://www.w3.org/2000/svg" width="180" height="20">
       <rect width="180" height="20" fill="#555"/>
       <rect x="80" width="100" height="20" fill="#4c1"/>
       <text x="10" y="14" fill="#fff" font-family="Verdana" font-size="11">Dashboard</text>
       <text x="90" y="14" fill="#fff" font-family="Verdana" font-size="11">{{ timestamp }}</text>
     </svg>
-    """)
+    """))
     ts = datetime.utcnow().strftime("%Y-%m-%d")
     svg = badge_template.render(timestamp=ts)
     with open(output, "w") as f:
@@ -67,6 +70,9 @@ def write_badge(output=BADGE_SVG):
 
 if __name__ == "__main__":
     df = load_benchmarks()
-    fig = plot_dashboard(df)
-    write_html(fig)
-    write_badge()
+    if df.empty:
+        print("No valid benchmark data found.")
+    else:
+        fig = plot_dashboard(df)
+        write_html(fig)
+        write_badge()
