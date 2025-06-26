@@ -251,7 +251,7 @@ impl AnnBackend for AnnIndex {
         // No-op for brute-force index
     }
 
-    fn inner_search(&self, q: &[f32], q_sq: f32, k: usize) -> PyResult<(Vec<i64>, Vec<f32>)> {
+    fn search(&self, q: &[f32], q_sq: f32, k: usize) -> PyResult<(Vec<i64>, Vec<f32>)> {
         if q.len() != self.dim {
             return Err(RustAnnError::py_err("Dimension Error", format!(
                 "Expected dimension {}, got {}", self.dim, q.len()
@@ -293,5 +293,20 @@ impl AnnBackend for AnnIndex {
                 .map(|(x, y)| (x - y).abs())
                 .fold(0.0, f32::max),
         }
+
+    fn search(&self, q: &[f32], q_sq: f32, k: usize) -> PyResult<(Vec<i64>, Vec<f32>)> {
+        self.inner_search(q, q_sq, k)
+    }
+
+    fn save(&self, path: &str) -> PyResult<()> {
+        let full = format!("{}.bin", path);
+        save_index(self, &full).map_err(|e| e.into_pyerr())
+    }
+
+    fn load(path: &str) -> PyResult<Self> where Self: Sized {
+        let full = format!("{}.bin", path);
+        load_index(&full).map_err(|e| e.into_pyerr())
+    }
+}
     }
 }
