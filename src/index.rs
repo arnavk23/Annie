@@ -231,61 +231,6 @@ impl AnnIndex {
     }
 }
 
-impl AnnIndex {
-    /// Core search logic covering L2, Cosine, L1 (Manhattan), L∞ (Chebyshev), and Lₚ.
-    fn inner_search(&self, q: &[f32], q_sq: f32, k: usize) -> PyResult<(Vec<i64>, Vec<f32>)> {
-        if q.len() != self.dim {
-            return Err(RustAnnError::py_err("Dimension Error",format!(
-                "Expected dimension {}, got {}", self.dim, q.len()
-            )));
-        }
-
-        let p_opt = self.minkowski_p;
-        let mut results: Vec<(i64, f32)> = self.entries
-            .par_iter()
-            .map(|(id, vec, vec_sq)| {
-                // dot only used by L2/Cosine
-                let dot = vec.iter().zip(q.iter()).map(|(x, y)| x * y).sum::<f32>();
-
-                let dist = if let Some(p) = p_opt {
-                    // Minkowski-p: (∑ |x-y|^p)^(1/p)
-                    let sum_p = vec.iter().zip(q.iter())
-                        .map(|(x, y)| (x - y).abs().powf(p))
-                        .sum::<f32>();
-                    sum_p.powf(1.0 / p)
-                } else {
-                    match self.metric {
-                        Distance::Euclidean => ((vec_sq + q_sq - 2.0 * dot).max(0.0)).sqrt(),
-                        Distance::Cosine    => {
-                            let denom = vec_sq.sqrt().max(1e-12) * q_sq.sqrt().max(1e-12);
-                            (1.0 - (dot / denom)).max(0.0)
-                        }
-                        Distance::Manhattan => vec.iter().zip(q.iter())
-                            .map(|(x, y)| (x - y).abs())
-                            .sum::<f32>(),
-                        Distance::Chebyshev => vec.iter().zip(q.iter())
-                            .map(|(x, y)| (x - y).abs())
-                            .fold(0.0, f32::max),
-                    }
-                };
-
-                (*id, dist)
-            })
-            .collect();
-
-        // Sort ascending by distance and keep top-k
-        results.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
-        results.truncate(k);
-
-        // Split into IDs and distances
-        let ids   = results.iter().map(|(i, _)| *i).collect();
-        let dists = results.iter().map(|(_, d)| *d).collect();
-        Ok((ids, dists))
-        
-
-        
-    }
-}
 impl AnnBackend for AnnIndex {
     fn new(dim: usize, metric: Distance) -> Self {
         AnnIndex {
