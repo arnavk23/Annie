@@ -12,16 +12,12 @@ mod index_enum;
 
 use pyo3::prelude::*;
 
-use index::AnnIndex;
-use metrics::Distance;
-use concurrency::ThreadSafeAnnIndex;
-use filters::{search_filter, search_possible_filter};
-
 use crate::backend::AnnBackend;
 use crate::index::AnnIndex;
 use crate::metrics::Distance;
 use crate::concurrency::ThreadSafeAnnIndex;
 use crate::hnsw_index::HnswIndex;
+use crate filters::{search_filter, search_possible_filter};
 
 #[pyclass]
 pub struct PyHnswIndex {
