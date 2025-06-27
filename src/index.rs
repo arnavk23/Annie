@@ -295,7 +295,24 @@ impl AnnBackend for AnnIndex {
         }
 
     fn search(&self, q: &[f32], q_sq: f32, k: usize) -> PyResult<(Vec<i64>, Vec<f32>)> {
-        self.inner_search(q, q_sq, k)
+        if q.len() != self.dim {
+            return Err(RustAnnError::py_err("Dimension Error", format!(
+                "Expected dimension {}, got {}", self.dim, q.len()
+            )));
+        }
+        let results: Vec<(i64, f32)> = self.entries
+            .par_iter()
+            .map(|(id, vec, vec_sq)| {
+                let dist = self.compute_distance(q, q_sq, vec, *vec_sq);
+                (*id, dist)
+            })
+            .collect();
+        let mut sorted = results;
+        sorted.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+        sorted.truncate(k);
+        let ids = sorted.iter().map(|(i, _)| *i).collect();
+        let dists = sorted.iter().map(|(_, d)| *d).collect();
+        Ok((ids, dists))
     }
 
     fn save(&self, path: &str) -> PyResult<()> {
