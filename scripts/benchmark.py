@@ -1,7 +1,9 @@
 # benchmark.py
-import time
+import time,json,argparse
 import numpy as np
 from rust_annie import AnnIndex, Distance
+import os
+from datetime import datetime
 
 def pure_python_search(data, ids, q, k):
     # data: (N,D), q: (D,)
@@ -34,9 +36,22 @@ def benchmark(N=10000, D=64, k=10, repeats=50):
         pure_python_search(data, ids, q, k)
     t_py = (time.perf_counter() - t0) / repeats
 
-    print(f"Rust avg search time:       {t_rust*1e3:8.3f} ms")
-    print(f"Pure-Python avg time:       {t_py*1e3:8.3f} ms")
-    print(f"Speedup (Python / Rust):    {t_py / t_rust:6.2f}×")
+    results = {
+        "rust_search_ms": t_rust * 1e3,
+        "python_search_ms": t_py * 1e3,
+        "speedup": t_py / t_rust
+    }
+
+    return results
 
 if __name__ == "__main__":
-    benchmark()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", type=str, help="Path to write benchmark results")
+    args = parser.parse_args()
+
+    results = benchmark()
+    print(json.dumps(results, indent=2))
+
+    if args.output:
+        with open(args.output, "w") as f:
+            json.dump(results, f)
