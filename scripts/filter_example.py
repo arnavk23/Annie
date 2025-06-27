@@ -17,6 +17,7 @@ def even_id_filter(i):
 
 query = np.array([0.0, 0.0, 0.0], dtype=np.float32)
 allowed_ids = set(filter(even_id_filter, ids))
-ids, dists = index.search_filter(query, k=2, allowed_ids=allowed_ids)
+result = index.search_filter(query, k=2, allowed_ids=allowed_ids)
+ids, dists = result[0], result[1]
 print("Filtered IDs:", ids)
 print("Distances:", dists)
