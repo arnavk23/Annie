@@ -2,22 +2,21 @@
 mod index;
 mod storage;
 pub mod metrics;
-mod filters;
 mod errors;
 mod concurrency;
-
 mod backend;
 mod hnsw_index;
 mod index_enum;
+mod filters;
 
 use pyo3::prelude::*;
-
+use pyo3::types::PyAny;
 use crate::backend::AnnBackend;
 use crate::index::AnnIndex;
 use crate::metrics::Distance;
 use crate::concurrency::ThreadSafeAnnIndex;
 use crate::hnsw_index::HnswIndex;
-use crate filters::{search_filter, search_possible_filter};
+use crate::filters::PythonFilter;
 
 #[pyclass]
 pub struct PyHnswIndex {
@@ -55,16 +54,11 @@ impl PyHnswIndex {
     }
 }
 
-
 #[pymodule]
-fn rust_annie(_py: Python, m: &PyModule) -> PyResult<()> {
+fn rust_annie(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<AnnIndex>()?;
     m.add_class::<Distance>()?;
     m.add_class::<ThreadSafeAnnIndex>()?;
-
-    m.add_function(wrap_pyfunction!(search_filter, m)?)?;
-    m.add_function(wrap_pyfunction!(search_possible_filter, m)?)?;
     m.add_class::<PyHnswIndex>()?;
     Ok(())
 }
-
