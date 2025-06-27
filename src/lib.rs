@@ -8,10 +8,9 @@ mod concurrency;
 mod backend;
 mod hnsw_index;
 mod index_enum;
-mod filters;
+mod filters; 
 
 use pyo3::prelude::*;
-use pyo3::types::PyAny;
 use crate::backend::AnnBackend;
 use crate::index::AnnIndex;
 use crate::metrics::Distance;
@@ -56,10 +55,11 @@ impl PyHnswIndex {
 }
 
 #[pymodule]
-fn rust_annie(py: Python, m: &PyModule) -> PyResult<()> {
+fn rust_annie(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<AnnIndex>()?;
     m.add_class::<Distance>()?;
     m.add_class::<ThreadSafeAnnIndex>()?;
     m.add_class::<PyHnswIndex>()?;
     Ok(())
 }
+
