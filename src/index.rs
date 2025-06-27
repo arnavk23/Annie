@@ -194,16 +194,16 @@ impl AnnIndex {
         }
 
         let q_sq = q.iter().map(|x| x * x).sum::<f32>();
-        let mut filtered: Vec<(i64, f32)> = Vec::new();
-
-        for (id, vec, vec_sq) in self.entries.iter() {
-            let allow = filter_fn.call1(py, (*id,))?.extract::<bool>(py)?;
-            if !allow {
-                continue;
-            }
-            let dist = self.compute_distance(q, q_sq, vec, *vec_sq);
-            filtered.push((*id, dist));
-        }
+        filtered = self.entries.par_iter()
+            .filter_map(|(id, vec, vec_sq)| {
+                let allow = filter_fn.call1(py, (*id,)).ok()?.extract::<bool>(py).ok()?;
+                if !allow {
+                    return None;
+                }
+                let dist = self.compute_distance(q, q_sq, vec, *vec_sq);
+                Some((*id, dist))
+            })
+            .collect();
 
         filtered.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
         filtered.truncate(k);
