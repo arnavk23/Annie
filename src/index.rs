@@ -100,15 +100,7 @@ impl AnnIndex {
         query: PyReadonlyArray1<f32>,
         k: usize,
     ) -> PyResult<(PyObject, PyObject)> {
-        if k == 0 {
-            return Err(RustAnnError::py_err("InvalidArgument", "`k` must be > 0"));
-        }
-
         let q = query.as_slice()?;
-        if q.len() != self.dim {
-            return Err(RustAnnError::py_err("Dimension Error", format!("Expected dimension {}, got {}", self.dim, q.len())));
-        }
-
         let q_sq = q.iter().map(|x| x * x).sum::<f32>();
 
         // Release the GIL for the heavy compute:
@@ -130,18 +122,9 @@ impl AnnIndex {
         data: PyReadonlyArray2<f32>,
         k: usize,
     ) -> PyResult<(PyObject, PyObject)> {
-        if k == 0 {
-            return Err(RustAnnError::py_err("InvalidArgument", "`k` must be > 0"));
-        }
-
         let arr = data.as_array();
-        if arr.ncols() != self.dim {
-            return Err(RustAnnError::py_err("Dimension Error", format!("Expected dimension {}, got {}", self.dim, arr.ncols())));
-        }
-
         let n = arr.nrows();
 
-        
         // Release the GIL around the parallel batch:
         let results: Vec<(Vec<i64>, Vec<f32>)> = py.allow_threads(|| {
             (0..n)
@@ -176,47 +159,6 @@ impl AnnIndex {
         ))
     }
 
-    /// Search using a Python callback filter (e.g., to exclude some ids).
-    pub fn search_filter_py(
-        &self,
-        py: Python,
-        query: PyReadonlyArray1<f32>,
-        k: usize,
-        filter_fn: PyObject,
-    ) -> PyResult<(PyObject, PyObject)> {
-        if k == 0 {
-            return Err(RustAnnError::py_err("InvalidArgument", "`k` must be > 0"));
-        }
-
-        let q = query.as_slice()?;
-        if q.len() != self.dim {
-            return Err(RustAnnError::py_err("Dimension Error", format!("Expected dimension {}, got {}", self.dim, q.len())));
-        }
-
-        let q_sq = q.iter().map(|x| x * x).sum::<f32>();
-        filtered = self.entries.par_iter()
-            .filter_map(|(id, vec, vec_sq)| {
-                let allow = filter_fn.call1(py, (*id,)).ok()?.extract::<bool>(py).ok()?;
-                if !allow {
-                    return None;
-                }
-                let dist = self.compute_distance(q, q_sq, vec, *vec_sq);
-                Some((*id, dist))
-            })
-            .collect();
-
-        filtered.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
-        filtered.truncate(k);
-
-        let ids: Vec<i64> = filtered.iter().map(|(id, _)| *id).collect();
-        let dists: Vec<f32> = filtered.iter().map(|(_, d)| *d).collect();
-
-        Ok((
-            ids.into_pyarray(py).to_object(py),
-            dists.into_pyarray(py).to_object(py),
-        ))
-    }
-
     /// Save index to `<path>.bin`.
     pub fn save(&self, path: &str) -> PyResult<()> {
         let full = format!("{}.bin", path);
@@ -231,6 +173,61 @@ impl AnnIndex {
     }
 }
 
+impl AnnIndex {
+    /// Core search logic covering L2, Cosine, L1 (Manhattan), L∞ (Chebyshev), and Lₚ.
+    fn inner_search(&self, q: &[f32], q_sq: f32, k: usize) -> PyResult<(Vec<i64>, Vec<f32>)> {
+        if q.len() != self.dim {
+            return Err(RustAnnError::py_err("Dimension Error",format!(
+                "Expected dimension {}, got {}", self.dim, q.len()
+            )));
+        }
+
+        let p_opt = self.minkowski_p;
+        let mut results: Vec<(i64, f32)> = self.entries
+            .par_iter()
+            .map(|(id, vec, vec_sq)| {
+                // dot only used by L2/Cosine
+                let dot = vec.iter().zip(q.iter()).map(|(x, y)| x * y).sum::<f32>();
+
+                let dist = if let Some(p) = p_opt {
+                    // Minkowski-p: (∑ |x-y|^p)^(1/p)
+                    let sum_p = vec.iter().zip(q.iter())
+                        .map(|(x, y)| (x - y).abs().powf(p))
+                        .sum::<f32>();
+                    sum_p.powf(1.0 / p)
+                } else {
+                    match self.metric {
+                        Distance::Euclidean => ((vec_sq + q_sq - 2.0 * dot).max(0.0)).sqrt(),
+                        Distance::Cosine    => {
+                            let denom = vec_sq.sqrt().max(1e-12) * q_sq.sqrt().max(1e-12);
+                            (1.0 - (dot / denom)).max(0.0)
+                        }
+                        Distance::Manhattan => vec.iter().zip(q.iter())
+                            .map(|(x, y)| (x - y).abs())
+                            .sum::<f32>(),
+                        Distance::Chebyshev => vec.iter().zip(q.iter())
+                            .map(|(x, y)| (x - y).abs())
+                            .fold(0.0, f32::max),
+                    }
+                };
+
+                (*id, dist)
+            })
+            .collect();
+
+        // Sort ascending by distance and keep top-k
+        results.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+        results.truncate(k);
+
+        // Split into IDs and distances
+        let ids   = results.iter().map(|(i, _)| *i).collect();
+        let dists = results.iter().map(|(_, d)| *d).collect();
+        Ok((ids, dists))
+        
+
+        
+    }
+}
 impl AnnBackend for AnnIndex {
     fn new(dim: usize, metric: Distance) -> Self {
         AnnIndex {
@@ -251,79 +248,50 @@ impl AnnBackend for AnnIndex {
         // No-op for brute-force index
     }
 
-    fn search(&self, q: &[f32], q_sq: f32, k: usize) -> PyResult<(Vec<i64>, Vec<f32>)> {
-        if q.len() != self.dim {
-            return Err(RustAnnError::py_err("Dimension Error", format!(
-                "Expected dimension {}, got {}", self.dim, q.len()
-            )));
-        }
-        let results: Vec<(i64, f32)> = self.entries
-            .par_iter()
-            .map(|(id, vec, vec_sq)| {
-                let dist = self.compute_distance(q, q_sq, vec, *vec_sq);
-                (*id, dist)
+    fn search(&self, vector: &[f32], k: usize) -> Vec<usize> {
+        let query_sq = vector.iter().map(|x| x * x).sum::<f32>();
+
+        let mut results: Vec<(usize, f32)> = self.entries
+            .iter()
+            .enumerate()
+            .map(|(idx, (_id, vec, vec_sq))| {
+                let dot = vec.iter().zip(vector.iter()).map(|(x, y)| x * y).sum::<f32>();
+
+                let dist = if let Some(p) = self.minkowski_p {
+                    vec.iter().zip(vector.iter())
+                        .map(|(x, y)| (x - y).abs().powf(p))
+                        .sum::<f32>()
+                        .powf(1.0 / p)
+                } else {
+                    match self.metric {
+                        Distance::Euclidean => ((vec_sq + query_sq - 2.0 * dot).max(0.0)).sqrt(),
+                        Distance::Cosine => {
+                            let denom = vec_sq.sqrt().max(1e-12) * query_sq.sqrt().max(1e-12);
+                            (1.0 - (dot / denom)).max(0.0)
+                        }
+                        Distance::Manhattan => vec.iter().zip(vector.iter())
+                            .map(|(x, y)| (x - y).abs())
+                            .sum::<f32>(),
+                        Distance::Chebyshev => vec.iter().zip(vector.iter())
+                            .map(|(x, y)| (x - y).abs())
+                            .fold(0.0, f32::max),
+                    }
+                };
+
+                (idx, dist)
             })
             .collect();
-        let mut sorted = results;
-        sorted.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
-        sorted.truncate(k);
-        let ids = sorted.iter().map(|(i, _)| *i).collect();
-        let dists = sorted.iter().map(|(_, d)| *d).collect();
-        Ok((ids, dists))
-    }
-    /// Compute distance between a query and stored vector
-    fn compute_distance(&self, q: &[f32], q_sq: f32, vec: &[f32], vec_sq: f32) -> f32 {
-        let dot = vec.iter().zip(q.iter()).map(|(x, y)| x * y).sum::<f32>();
-        if let Some(p) = self.minkowski_p {
-            let sum_p = vec.iter().zip(q.iter())
-                .map(|(x, y)| (x - y).abs().powf(p))
-                .sum::<f32>();
-            return sum_p.powf(1.0 / p);
-        }
-        match self.metric {
-            Distance::Euclidean => ((vec_sq + q_sq - 2.0 * dot).max(0.0)).sqrt(),
-            Distance::Cosine => {
-                let denom = vec_sq.sqrt().max(1e-12) * q_sq.sqrt().max(1e-12);
-                (1.0 - (dot / denom)).max(0.0)
-            }
-            Distance::Manhattan => vec.iter().zip(q.iter())
-                .map(|(x, y)| (x - y).abs())
-                .sum(),
-            Distance::Chebyshev => vec.iter().zip(q.iter())
-                .map(|(x, y)| (x - y).abs())
-                .fold(0.0, f32::max),
-        }
 
-    fn search(&self, q: &[f32], q_sq: f32, k: usize) -> PyResult<(Vec<i64>, Vec<f32>)> {
-        if q.len() != self.dim {
-            return Err(RustAnnError::py_err("Dimension Error", format!(
-                "Expected dimension {}, got {}", self.dim, q.len()
-            )));
-        }
-        let results: Vec<(i64, f32)> = self.entries
-            .par_iter()
-            .map(|(id, vec, vec_sq)| {
-                let dist = self.compute_distance(q, q_sq, vec, *vec_sq);
-                (*id, dist)
-            })
-            .collect();
-        let mut sorted = results;
-        sorted.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
-        sorted.truncate(k);
-        let ids = sorted.iter().map(|(i, _)| *i).collect();
-        let dists = sorted.iter().map(|(_, d)| *d).collect();
-        Ok((ids, dists))
+        results.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+        results.truncate(k);
+        results.into_iter().map(|(i, _)| i).collect()
     }
 
-    fn save(&self, path: &str) -> PyResult<()> {
-        let full = format!("{}.bin", path);
-        save_index(self, &full).map_err(|e| e.into_pyerr())
+    fn save(&self, path: &str) {
+        let _ = save_index(self, path);
     }
 
-    fn load(path: &str) -> PyResult<Self> where Self: Sized {
-        let full = format!("{}.bin", path);
-        load_index(&full).map_err(|e| e.into_pyerr())
-    }
-}
+    fn load(path: &str) -> Self {
+        load_index(path).unwrap()
     }
 }
