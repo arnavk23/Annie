@@ -1,5 +1,5 @@
 
-mod index;
+pub mod index;
 mod storage;
 pub mod metrics;
 mod errors;
