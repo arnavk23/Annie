@@ -50,6 +50,10 @@ This library supports applying filters to narrow down ANN search results dynamic
 
 Filters work on the metadata you provide when adding items to the index.
 
+### Sorting Behavior
+
+The BruteForceIndex now uses `total_cmp` for sorting, which provides NaN-resistant sorting behavior. This change ensures that any NaN values in the data are handled consistently, preventing potential issues with partial comparisons.
+
 ### Integration & Extensibility
 
 - Filters are exposed from Rust to Python via **PyO3** bindings.
