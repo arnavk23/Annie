@@ -2,6 +2,7 @@
 
 ![Annie](https://github.com/Programmers-Paradise/.github/blob/main/ChatGPT%20Image%20May%2015,%202025,%2003_58_16%20PM.png?raw=true)
 
+
 [![PyPI](https://img.shields.io/pypi/v/rust-annie.svg)](https://pypi.org/project/rust-annie)  
 [![CI](https://img.shields.io/badge/Workflow-CI-white.svg)](https://github.com/Programmers-Paradise/Annie/blob/main/.github/workflows/CI.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
@@ -9,9 +10,7 @@
 
 A lightning-fast, Rust-powered brute-force k-NN library for Python, with optional batch queries, thread-safety, and on-disk persistence.
 
----
-
-## 📝 Table of Contents
+## Table of Contents
 
 1. [Features](#features)  
 2. [Installation](#installation)  
@@ -25,13 +24,11 @@ A lightning-fast, Rust-powered brute-force k-NN library for Python, with optiona
 7. [Development & CI](#development--ci)  
 8. [Roadmap](#roadmap)  
 9. [Contributing](#contributing)  
-10. [License](#license)  
+10. [License](#license)
 
----
+## Features
 
-## 🚀 Features
-
-- **Ultra-fast brute-force** k-NN search (Euclidean, Cosine, Manhattan)  
+- **Ultra-fast brute-force** k-NN search (Euclidean, Cosine, Manhattan, Chebyshev)  
 - **Batch** queries over multiple vectors  
 - **Thread-safe** wrapper with GIL release for true concurrency  
 - **Zero-copy** NumPy integration (via PyO3 & rust-numpy)  
@@ -39,9 +36,7 @@ A lightning-fast, Rust-powered brute-force k-NN library for Python, with optiona
 - **Multi-platform** wheels (manylinux, musllinux, Windows, macOS)  
 - **Automated CI** with correctness & performance checks  
 
----
-
-## ⚙️ Installation
+## Installation
 
 ```bash
 # Stable release from PyPI:
@@ -54,7 +49,7 @@ pip install maturin
 maturin develop --release
 ```
 
-## 🎉 Quick Start
+## Quick Start
 
 ```python
 import numpy as np
@@ -74,9 +69,7 @@ print("Nearest IDs:", labels)
 print("Distances :", dists)
 ```
 
----
-
-## 📚 Examples
+## Examples
 
 ### Single Query
 
@@ -131,26 +124,20 @@ with ThreadPoolExecutor(max_workers=8) as executor:
         print(f.result())
 ```
 
----
-
 ## Build and Query a Brute-Force AnnIndex in Python (Complete Example)
 
 This section demonstrates a complete, beginner-friendly example of how to build and query a `brute-force AnnIndex` using Python.
 
 > A brute-force AnnIndex exhaustively compares the query vector with every vector in the dataset. Though it checks all vectors, it's **extremely fast** thanks to its underlying **Rust + SIMD** implementation.
 
----
-
-## Steps
+### Steps
 
 - Initialize a `brute-force AnnIndex` with 128 dimensions and cosine distance.
 - Generate and add a batch of random vectors with unique IDs.
 - Perform a top-5 nearest-neighbor search on a new query vector.
 - Print the IDs and distances of the closest matches.
 
----
-
-### 💻 Code Example
+### Code Example
 
 > Make sure you’ve installed the library first:
 
@@ -180,14 +167,14 @@ for i in range(5):
     print(f"ID: {top_ids[i]}, Distance: {distances[i]}")
 ```
 
-## 📈 Benchmark Results
+## Benchmark Results
 
 Measured on a 6-core CPU:
 | Setting             | Pure Python | Rust (Annie) | Speedup |
 | ------------------- | ----------- | ------------ | ------- |
 | `N=5000, D=32, k=5` | \~0.31 ms   | \~2.16 ms    | 0.14×   |
 
-> ⚠️ NOTE: Rust may appear slower on small single-query benchmarks.
+> NOTE: Rust may appear slower on small single-query benchmarks.
 > For larger workloads, use `.search_batch` or multi-threaded execution to unleash its full power.
 
 | Mode                             | Per-query Time |
@@ -198,7 +185,7 @@ Measured on a 6-core CPU:
 
 That’s a \~4× speedup vs. NumPy!
 
-### 📊 [View Full Benchmark Dashboard →](https://programmers-paradise.github.io/Annie/)
+##### [View Full Benchmark Dashboard →](https://programmers-paradise.github.io/Annie/)
 
 You’ll find:
 
@@ -206,9 +193,7 @@ You’ll find:
 * Speedup trends
 * Auto-updating graphs on every push to `main`
 
----
-
-## 📖 API Reference
+## API Reference
 
 ### `rust_annie.AnnIndex(dim: int, metric: Distance)`
 
@@ -231,9 +216,7 @@ Enum: `Distance.EUCLIDEAN`, `Distance.COSINE`, `Distance.MANHATTAN`
 
 Same API as `AnnIndex`, safe for concurrent use.
 
----
-
-## 🔧 Development & CI
+## Development & CI
 
 **CI** runs on GitHub Actions, building wheels on Linux, Windows, macOS, plus:
 
@@ -249,7 +232,7 @@ python benchmark.py
 python batch_benchmark.py
 ```
 
-### 📊 Benchmark Automation
+### Benchmark Automation
 
 Benchmarks are tracked over time using:
 
@@ -258,19 +241,7 @@ Benchmarks are tracked over time using:
 * GitHub Actions auto-runs and updates benchmarks on every push to `main`
 * [Live Dashboard](https://programmers-paradise.github.io/Annie/)
 
----
-
-## 🚧 Roadmap
-
-* [x] SIMD-accelerated dot products
-* [x] Rayon parallelism & GIL release
-* [ ] Integrate HNSW/FAISS for sub-ms ANN at scale
-* [ ] GPU‐backed search (CUDA/ROCm)
-* [ ] Richer Python docs & type hints
-
----
-
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please:
 
@@ -281,8 +252,6 @@ Contributions are welcome! Please:
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 
----
-
-## 📜 License
+## License
 
 This project is licensed under the **MIT License**. See [LICENSE](./LICENSE) for details.
