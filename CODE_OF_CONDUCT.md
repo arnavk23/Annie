@@ -30,7 +30,7 @@ This Code of Conduct applies both within project spaces and in public spaces whe
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the maintainers at [maxprogrammer007](abhinavcsvtu007@gmail.com) and [arnavk23](kapoorarnav43@gmail.com). All complaints will be reviewed and investigated.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the maintainers at [maxprogrammer007](mailto:abhinavcsvtu007@gmail.com) and [arnavk23](mailto:kapoorarnav43@gmail.com). All complaints will be reviewed and investigated.
 
 ## Attribution
 
