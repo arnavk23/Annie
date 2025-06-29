@@ -1,5 +1,3 @@
-// src/backends/brute.rs
-
 use crate::distance::{Distance, euclidean, cosine, manhattan, chebyshev};
 use super::ann_backend::AnnBackend;
 
@@ -30,7 +28,9 @@ impl AnnBackend for BruteForceIndex {
             (i, d)
         }).collect();
 
-        scored.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+        // SAFE: Use total_cmp for NaN-resistant sorting
+        scored.retain(|(_, d)| !d.is_nan());
+        scored.sort_by(|a, b| a.1.total_cmp(&b.1));
         scored.truncate(k);
         scored
     }
