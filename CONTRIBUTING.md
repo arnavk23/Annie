@@ -1,13 +1,9 @@
+# Contributing to This Project
 
-
-# 🧩 Contributing to This Project
-
-First off, thank you for taking the time to contribute! 🎉
+First off, thank you for taking the time to contribute!
 Your help improves the quality and capabilities of this project, and we appreciate every bug report, feature request, and code contribution.
 
----
-
-## 📋 Table of Contents
+## Table of Contents
 
 * [Getting Started](#getting-started)
 * [How to Contribute](#how-to-contribute)
@@ -16,9 +12,7 @@ Your help improves the quality and capabilities of this project, and we apprecia
 * [Reporting Issues](#reporting-issues)
 * [Community Standards](#community-standards)
 
----
-
-## 🚀 Getting Started
+## Getting Started
 
 1. **Fork the repository** to your GitHub account.
 2. **Clone your forked repository**:
@@ -35,22 +29,20 @@ Your help improves the quality and capabilities of this project, and we apprecia
    pip install -r requirements.txt
    ```
 
----
+## How to Contribute
 
-## 🛠 How to Contribute
-
-### 🐛 Reporting Bugs
+### Reporting Bugs
 
 * Clearly describe the problem.
 * Include a minimal reproducible example if possible.
 * Mention environment details (OS, Python version, hardware).
 
-### 💡 Requesting Features
+### Requesting Features
 
 * Explain why the feature is needed.
 * Suggest potential use cases and examples.
 
-### 👨‍💻 Submitting Code
+### Submitting Code
 
 * Create a feature branch:
 
@@ -61,18 +53,14 @@ Your help improves the quality and capabilities of this project, and we apprecia
 * Commit with clear messages.
 * Push to your fork and submit a **Pull Request (PR)**.
 
----
-
-## ✅ Code Guidelines
+## Code Guidelines
 
 * **Linting**: Follow PEP8. Use `flake8` or `black` for formatting.
 * **Typing**: Use Python type hints where applicable.
 * **Testing**: Add/modify test cases under the `tests/` directory.
 * **Docs**: Update `README.md` or docstrings if your changes affect usage.
 
----
-
-## 📦 Pull Request Process
+## Pull Request Process
 
 1. Ensure your branch is **rebased** with `main`.
 2. Your PR should pass **all checks** (CI, formatting, tests).
@@ -80,9 +68,7 @@ Your help improves the quality and capabilities of this project, and we apprecia
 4. Link to any relevant issues in the description.
 5. Be open to feedback and revisions.
 
----
-
-## 🐞 Reporting Issues
+## Reporting Issues
 
 When opening an issue, **use the provided templates**:
 
@@ -93,16 +79,11 @@ When opening an issue, **use the provided templates**:
 
 This helps us triage and respond faster.
 
----
-
-## 🤝 Community Standards
+## Community Standards
 
 We follow the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).
 Be respectful, constructive, and supportive in all interactions.
 
----
+## Acknowledgement
 
-## 🙌 Acknowledgement
-
-Thanks again for contributing! Every improvement helps make this project better for everyone. Let’s build something amazing together 🚀
-
+Thanks again for contributing! Every improvement helps make this project better for everyone.
