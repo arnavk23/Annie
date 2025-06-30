@@ -2,20 +2,20 @@
 mod gpu {
     use cust::prelude::*;
 
-    pub fn l2_distance_gpu(queries: &[f32], corpus: &[f32], dim: usize, n_queries: usize, n_vectors: usize) -> Vec<f32> {
+    pub fn l2_distance_gpu(queries: &[f32], corpus: &[f32], dim: usize, n_queries: usize, n_vectors: usize) -> Result<Vec<f32>, cust::error::CudaError> {
         // Load PTX and create context
         let ptx = include_str!("kernels/l2_kernel.ptx");
-        let _ctx = cust::quick_init().unwrap();
-        let module = Module::from_ptx(ptx, &[]).unwrap();
-        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+        let _ctx = cust::quick_init()?;
+        let module = Module::from_ptx(ptx, &[])?;
+        let stream = Stream::new(StreamFlags::NON_BLOCKING, None)?;
 
         // Allocate device buffers
-        let query_buf = DeviceBuffer::from_slice(queries).unwrap();
-        let corpus_buf = DeviceBuffer::from_slice(corpus).unwrap();
-        let mut out_buf = DeviceBuffer::zeroed(n_queries * n_vectors).unwrap();
+        let query_buf = DeviceBuffer::from_slice(queries)?;
+        let corpus_buf = DeviceBuffer::from_slice(corpus)?;
+        let mut out_buf = DeviceBuffer::zeroed(n_queries * n_vectors)?;
 
         // Launch kernel
-        let func = module.get_function("l2_distance_kernel").unwrap();
+        let func = module.get_function("l2_distance_kernel")?;
         unsafe {
             launch!(func<<<n_queries as u32, n_vectors as u32, 0, stream>>>(
                 query_buf.as_device_ptr(),
