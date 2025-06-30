@@ -24,13 +24,13 @@ mod gpu {
                 n_queries as i32,
                 n_vectors as i32,
                 dim as i32
-            )).unwrap();
+            ))?;
         }
 
-        stream.synchronize().unwrap();
+        stream.synchronize()?;
 
         let mut out = vec![0.0f32; n_queries * n_vectors];
-        out_buf.copy_to(&mut out).unwrap();
+        out_buf.copy_to(&mut out)?;
         out
     }
 }
