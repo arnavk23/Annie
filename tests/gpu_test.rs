@@ -9,6 +9,7 @@ fn test_l2_gpu() {
     let queries = vec![1.0, 2.0, 3.0];
     let corpus = vec![1.0, 0.0, 0.0];
 
-    let out = l2_distance_gpu(&queries, &corpus, dim, n_queries, n_vectors);
+    let out = l2_distance_gpu(&queries, &corpus, dim, n_queries, n_vectors)
+        .expect("Failed to compute L2 distance on GPU");
     assert!((out[0] - 13.0).abs() < 1e-3); // (2² + 3²) = 13
 }
