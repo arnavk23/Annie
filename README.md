@@ -7,6 +7,7 @@
 [![CI](https://img.shields.io/badge/Workflow-CI-white.svg)](https://github.com/Programmers-Paradise/Annie/blob/main/.github/workflows/CI.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Benchmark](https://img.shields.io/badge/benchmark-online-blue.svg)](https://programmers-paradise.github.io/Annie/)
+[![GPU Support](https://img.shields.io/badge/GPU-CUDA-green.svg)](https://github.com/Programmers-Paradise/Annie/pull/53)
 
 A lightning-fast, Rust-powered brute-force k-NN library for Python, with optional batch queries, thread-safety, and on-disk persistence.
 
@@ -22,7 +23,7 @@ A lightning-fast, Rust-powered brute-force k-NN library for Python, with optiona
 5. [Benchmark Results](#benchmark-results)  
 6. [API Reference](#api-reference)  
 7. [Development & CI](#development--ci)  
-8. [Roadmap](#roadmap)  
+8. [GPU Acceleration](#gpu-acceleration)
 9. [Contributing](#contributing)  
 10. [License](#license)
 
@@ -240,6 +241,23 @@ Benchmarks are tracked over time using:
 * `dashboard.py` — generates a Plotly dashboard + freshness badge
 * GitHub Actions auto-runs and updates benchmarks on every push to `main`
 * [Live Dashboard](https://programmers-paradise.github.io/Annie/)
+
+## GPU Acceleration
+
+Annie optionally supports **GPU-backed brute-force distance computation** using `cust` (CUDA for Rust). It significantly accelerates batch queries and high-dimensional searches.
+
+Supported:
+- CUDA (NVIDIA GPUs, via `.ptx`)
+- Batched L2 distance (prototype)
+
+ROCm (AMD GPU) support is not yet available.
+
+### Enable GPU in Rust
+
+```bash
+# Compile with GPU support (requires CUDA toolkit and nvcc)
+cargo run --features gpu
+```
 
 ## Contributing
 
