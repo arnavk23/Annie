@@ -15,14 +15,8 @@ fn main() {
             1.0, 0.0, 0.0, // Vector 1
             0.0, 1.0, 0.0, // Vector 2
         ];
-
-        let distances = match l2_distance_gpu(&queries, &corpus, dim, n_queries, n_vectors) {
-            Ok(result) => result,
-            Err(e) => {
-                eprintln!("Error computing GPU L2 distances: {:?}", e);
-                return;
-            }
-        };
+        
+        let distances = l2_distance_gpu(&queries, &corpus, dim, n_queries, n_vectors);
         println!("GPU L2 distances: {:?}", distances);
     }
 
