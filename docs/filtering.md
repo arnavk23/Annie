@@ -1,6 +1,6 @@
 ## ANN Search Filtering
 
-This document explains how to use the new filtering capabilities added in PR #338 to improve Approximate Nearest Neighbor (ANN) search.
+This document explains how to use the filtering capabilities to improve Approximate Nearest Neighbor (ANN) search.
 
 ### Why Filtering?
 
@@ -14,7 +14,7 @@ This improves both precision and flexibility of search.
 #### Example: Python API
 
 ```python
-from rust_annie import AnnIndex, PythonFilter
+from rust_annie import AnnIndex
 import numpy as np
 
 # 1. Create an index with vector dimension 128
@@ -27,8 +27,9 @@ vector1 = np.random.rand(128).astype(np.float32)
 index.add_item(0, vector0, metadata={"category": "A"})
 index.add_item(1, vector1, metadata={"category": "B"})
 
-# 3. Create a filter (e.g., only include items where category == "A")
-category_filter = PythonFilter.equals("category", "A")
+# 3. Define a filter function (e.g., only include items where category == "A")
+def category_filter(metadata):
+    return metadata.get("category") == "A"
 
 # 4. Perform search with the filter applied
 query_vector = np.random.rand(128).astype(np.float32)
