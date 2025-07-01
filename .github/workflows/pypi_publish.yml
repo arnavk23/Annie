@@ -61,7 +61,6 @@ jobs:
       run: cargo fmt --all -- --check
 
   build-wheels:
-Fixed
     name: Build wheels
     runs-on: ${{ matrix.os }}
     needs: test
