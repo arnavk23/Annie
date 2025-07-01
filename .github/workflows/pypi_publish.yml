@@ -24,10 +24,11 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
+  DIST_DIR: dist
 
 jobs:
   test:
-    name: Test
+    name: Run Rust + Python Tests
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -51,17 +52,17 @@ jobs:
         path: ~/.cargo/git
         key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
 
-    - name: Run tests
+    - name: Run cargo tests
       run: cargo test --verbose
 
-    - name: Run clippy
+    - name: Run Clippy linter
       run: cargo clippy -- -D warnings
 
     - name: Check formatting
       run: cargo fmt --all -- --check
 
   build-wheels:
-    name: Build wheels
+    name: Build wheels for all platforms
     runs-on: ${{ matrix.os }}
     needs: test
     if: github.event_name == 'workflow_dispatch' && (inputs.publish_to_testpypi || inputs.publish_to_pypi)
@@ -87,29 +88,26 @@ jobs:
       run: pip install maturin
 
     - name: Build wheels
-      run: maturin build --release --out dist --find-interpreter
+      run: maturin build --release --out ${{ env.DIST_DIR }} --find-interpreter
 
     - name: Upload wheels
       uses: actions/upload-artifact@v3
       with:
         name: wheels-${{ matrix.os }}-py${{ matrix.python-version }}
-        path: dist
+        path: ${{ env.DIST_DIR }}
 
   build-sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
     needs: test
     if: github.event_name == 'workflow_dispatch' && (inputs.publish_to_testpypi || inputs.publish_to_pypi)
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11]
     steps:
     - uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.11"
 
     - name: Set up Rust
       uses: actions-rs/toolchain@v1
@@ -121,13 +119,13 @@ jobs:
       run: pip install maturin
 
     - name: Build sdist
-      run: maturin sdist --out dist
+      run: maturin sdist --out ${{ env.DIST_DIR }}
 
     - name: Upload sdist
       uses: actions/upload-artifact@v3
       with:
         name: sdist
-        path: dist
+        path: ${{ env.DIST_DIR }}
 
   publish-to-testpypi:
     name: Publish to TestPyPI
@@ -135,21 +133,35 @@ jobs:
     needs: [build-wheels, build-sdist]
     if: github.event_name == 'workflow_dispatch' && inputs.publish_to_testpypi
     steps:
-    - name: Download all artifacts
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install maturin
+      run: pip install maturin
+
+    - name: Download artifacts
       uses: actions/download-artifact@v3
       with:
-        path: dist
+        path: ${{ env.DIST_DIR }}
 
     - name: Flatten dist directory
       run: |
-        find dist -name "*.whl" -o -name "*.tar.gz" | xargs -I {} mv {} dist/
-        find dist -type d -empty -delete
+        find ${{ env.DIST_DIR }} -name "*.whl" -o -name "*.tar.gz" | xargs -I {} mv {} ${{ env.DIST_DIR }}
+        find ${{ env.DIST_DIR }} -type d -empty -delete
+
     - name: Publish to TestPyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        repository-url: https://test.pypi.org/legacy/
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        verbose: true
+      run: |
+        maturin publish --repository-url https://test.pypi.org/legacy/ \
+                        --username __token__ \
+                        --password "${{ secrets.TEST_PYPI_API_TOKEN }}" \
+                        --no-sdist \
+                        --skip-existing \
+                        --non-interactive \
+                        --out ${{ env.DIST_DIR }}
 
   publish-to-pypi:
     name: Publish to PyPI
@@ -157,17 +169,31 @@ jobs:
     needs: [build-wheels, build-sdist]
     if: github.event_name == 'workflow_dispatch' && inputs.publish_to_pypi
     steps:
-    - name: Download all artifacts
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install maturin
+      run: pip install maturin
+
+    - name: Download artifacts
       uses: actions/download-artifact@v3
       with:
-        path: dist
+        path: ${{ env.DIST_DIR }}
 
     - name: Flatten dist directory
       run: |
-        find dist -name "*.whl" -o -name "*.tar.gz" | xargs -I {} mv {} dist/
-        find dist -type d -empty -delete
+        find ${{ env.DIST_DIR }} -name "*.whl" -o -name "*.tar.gz" | xargs -I {} mv {} ${{ env.DIST_DIR }}
+        find ${{ env.DIST_DIR }} -type d -empty -delete
+
     - name: Publish to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
-        verbose: true
+      run: |
+        maturin publish --username __token__ \
+                        --password "${{ secrets.PYPI_API_TOKEN }}" \
+                        --no-sdist \
+                        --skip-existing \
+                        --non-interactive \
+                        --out ${{ env.DIST_DIR }}
