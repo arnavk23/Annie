@@ -97,7 +97,6 @@ Fixed
         path: dist
 
   build-sdist:
-Fixed
     name: Build source distribution
     runs-on: ubuntu-latest
     needs: test
