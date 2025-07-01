@@ -1,9 +1,7 @@
-//new added
-
 use crate::{AnnIndex, HnswIndex, backend::AnnBackend};
 use pyo3::{Python, PyResult, PyAny, Py};
 use numpy::PyReadonlyArray1;
-use pyo3::IntoPy; // ✅ Required for into_py()
+use pyo3::IntoPy;
 
 pub enum Index {
     BruteForce(AnnIndex),
