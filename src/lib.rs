@@ -16,7 +16,6 @@ use crate::index::AnnIndex;
 use crate::metrics::Distance;
 use crate::concurrency::ThreadSafeAnnIndex;
 use crate::hnsw_index::HnswIndex;
-use crate::filters::PythonFilter;
 
 #[pyclass]
 pub struct PyHnswIndex {

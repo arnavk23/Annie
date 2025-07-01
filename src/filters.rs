@@ -1,7 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::PyObject;
 
-/// Wrapper around a Python callback filter function
 pub struct PythonFilter {
     callback: PyObject,
 }
