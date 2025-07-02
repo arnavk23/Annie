@@ -46,7 +46,7 @@ impl PyHnswIndex {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>("ids length must match number of vectors"));
         }
         for (i, vector) in data_slice.chunks_exact(dims).enumerate() {
-            self.inner.add_item(vector.to_vec());
+            self.inner.add_item(vector.to_vec(), ids_slice[i]);
         }
         Ok(())
     }
