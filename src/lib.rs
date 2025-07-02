@@ -57,15 +57,12 @@ impl PyHnswIndex {
 
     fn search(&self, py: Python, query: PyReadonlyArray1<f32>, k: usize) -> PyResult<(PyObject, PyObject)> {
         let query_slice = query.as_slice()?;
-        let internal_ids = self.inner.search(query_slice, k);
+        let (internal_ids, distances) = self.inner.search(query_slice, k);
         
-        // Convert to user IDs and get distances
+        // Convert to user IDs
         let user_ids = internal_ids.iter()
             .map(|&id| *self.inner.user_ids.get(id).unwrap_or(&-1) as i64)
             .collect::<Vec<_>>();
-        
-        // Placeholder distances
-        let distances = vec![0.0; user_ids.len()];
         
         Ok((
             user_ids.into_pyarray(py).to_object(py),
