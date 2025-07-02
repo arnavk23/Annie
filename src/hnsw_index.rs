@@ -39,7 +39,7 @@ impl AnnBackend for HnswIndex {
         self.index
             .search(vector, k, 50) // ef = 50
             .iter()
-            .map(|n| n.d_id)
+            .map(|n| self.user_ids.get(n.d_id).copied().unwrap_or_default() as usize)
             .collect()
     }
 
