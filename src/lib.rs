@@ -36,7 +36,7 @@ impl PyHnswIndex {
     }
 
     fn add(&mut self, py: Python, data: PyReadonlyArray2<f32>, ids: PyReadonlyArray1<i64>) -> PyResult<()> {
-        if !data.dtype().is_equivalent_to(numpy::dtype::<f32>(py)?) {
+        if !data.dtype().is_equiv_to(numpy::dtype::<f32>(py)) {
             return Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>("Input data must be of type f32"));
         }
 
@@ -59,7 +59,7 @@ impl PyHnswIndex {
         }
 
         for (i, vector) in data_slice.chunks_exact(dims).enumerate() {
-            self.inner.insert(vector, ids_slice[i] as usize);
+            self.inner.insert(vector, ids_slice[i]);
         }
         Ok(())
     }
@@ -68,19 +68,11 @@ impl PyHnswIndex {
         self.inner.build();
     }
 
-    fn search(&self, py: Python, query: PyReadonlyArray1<f32>, k: usize) -> PyResult<(PyObject, PyObject)> {
-        let query_slice = query.as_slice()?;
-        let (internal_ids, distances) = self.inner.search(query_slice, k);
-
-        let user_ids: Vec<i64> = internal_ids
-            .iter()
-            .map(|&id| self.inner.get_user_id(id))
-            .collect();
-
-        Ok((
-            user_ids.to_pyarray(py).to_object(py),
-            distances.to_pyarray(py).to_object(py),
-        ))
+    fn search(&self, vector: &[f32], k: usize) -> (Vec<usize>, Vec<f32>) {
+        let results = self.index.search(vector, k, 50); // ef = 50
+        let internal_ids = results.iter().map(|n| n.d_id).collect();
+        let distances = results.iter().map(|n| n.distance).collect();
+        (internal_ids, distances)
     }
 
     fn save(&self, path: String) {
