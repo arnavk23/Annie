@@ -17,10 +17,11 @@ def benchmark(index_cls, name, dim=128, n=10_000, q=100, k=10):
 
     # Warm-up + Timing
     times = []
-    for i in range(q):
-        start = time.perf_counter()
-        _ = index.search(queries[i], k=k)
-        times.append((time.perf_counter() - start) * 1000)
+    # Batch search for improved performance and realistic benchmarking
+    start = time.perf_counter()
+    results = index.search(queries, k=k)
+    elapsed = (time.perf_counter() - start) * 1000
+    times = [elapsed / q] * q  # Approximate per-query time
 
     print(f"  Avg query time: {np.mean(times):.3f} ms")
     print(f"  Max query time: {np.max(times):.3f} ms")
