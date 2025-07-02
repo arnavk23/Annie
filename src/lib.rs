@@ -10,7 +10,7 @@ mod index_enum;
 mod filters;
 
 use pyo3::prelude::*;
-use numpy::{PyReadonlyArray1, PyReadonlyArray2, ToPyArray};
+use numpy::{PyReadonlyArray1, PyReadonlyArray2};
 use crate::backend::AnnBackend;
 use crate::index::AnnIndex;
 use crate::metrics::Distance;
@@ -68,11 +68,8 @@ impl PyHnswIndex {
         self.inner.build();
     }
 
-    fn search(&self, vector: &[f32], k: usize) -> (Vec<usize>, Vec<f32>) {
-        let results = self.index.search(vector, k, 50); // ef = 50
-        let internal_ids = results.iter().map(|n| n.d_id).collect();
-        let distances = results.iter().map(|n| n.distance).collect();
-        (internal_ids, distances)
+    fn search(&self, vector: Vec<f32>, k: usize) -> Vec<usize> {
+        self.inner.search(&vector, k)
     }
 
     fn save(&self, path: String) {
