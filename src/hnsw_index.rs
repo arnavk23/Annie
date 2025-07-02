@@ -1,6 +1,4 @@
 use hnsw_rs::prelude::*;
-use pyo3::prelude::*; // For PyResult
-use pyo3::exceptions::PyNotImplementedError; // For PyErr::new
 use crate::backend::AnnBackend;
 use crate::metrics::Distance;
 
@@ -27,26 +25,25 @@ impl AnnBackend for HnswIndex {
     }
 
     fn add_item(&mut self, item: Vec<f32>) {
-        let internal_id = self.user_ids.len() as i64;
-        self.insert(&item, internal_id); // Use internal ID as user ID
+        let internal_id = self.user_ids.len();
+        self.index.insert((&item, internal_id));
+        self.user_ids.push(internal_id as i64); // default internal ID as user ID
     }
 
     fn build(&mut self) {
         // No-op: HNSW builds during insertion
     }
 
-   fn search(&self, vector: &[f32], k: usize) -> (Vec<i64>, Vec<f32>) {
+    fn search(&self, vector: &[f32], k: usize) -> Vec<usize> {
         self.index
             .search(vector, k, 50)
             .iter()
-            .map(|n| self.get_user_id(n.d_id)) // map to user ID
+            .map(|n| n.d_id) // internal ID
             .collect()
     }
 
-    fn save(&self, _path: &str) -> PyResult<()> {
-        Err(PyErr::new::<pyo3::exceptions::PyNotImplementedError, _>(
-            "save() is not supported in hnsw-rs v0.3.2",
-        ))
+    fn save(&self, _path: &str) {
+        unimplemented!("HNSW save not implemented yet");
     }
 
     fn load(_path: &str) -> Self {
