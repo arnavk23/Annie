@@ -37,8 +37,15 @@ impl PyHnswIndex {
     fn add(&mut self, py: Python, data: PyReadonlyArray2<f32>, ids: PyReadonlyArray1<i64>) -> PyResult<()> {
         let data_slice = data.as_slice()?;
         let ids_slice = ids.as_slice()?;
-        
-        for (i, vector) in data_slice.chunks_exact(self.inner.dims).enumerate() {
+        let n_vectors = data.shape()[0];
+        let dims = self.inner.dims;
+        if data.shape().len() != 2 || data.shape()[1] != dims {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Input data must be of shape (n, {})", dims)));
+        }
+        if ids_slice.len() != n_vectors {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>("ids length must match number of vectors"));
+        }
+        for (i, vector) in data_slice.chunks_exact(dims).enumerate() {
             self.inner.add_item(vector.to_vec());
         }
         Ok(())
@@ -54,7 +61,7 @@ impl PyHnswIndex {
         
         // Convert to user IDs and get distances
         let user_ids = internal_ids.iter()
-            .map(|&id| self.inner.user_ids[id] as i64)
+            .map(|&id| *self.inner.user_ids.get(id).unwrap_or(&-1) as i64)
             .collect::<Vec<_>>();
         
         // Placeholder distances
