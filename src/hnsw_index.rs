@@ -35,11 +35,12 @@ impl AnnBackend for HnswIndex {
     }
 
     fn search(&self, vector: &[f32], k: usize) -> Vec<usize> {
-        self.index
-            .search(vector, k, 50)
-            .iter()
-            .map(|n| n.d_id) // internal ID
-            .collect()
+        let results = self.index.search(vector, k, 50);
+        let mut ids = Vec::with_capacity(results.len());
+        for n in results {
+            ids.push(n.d_id);
+        }
+        ids
     }
 
     fn save(&self, _path: &str) {
@@ -63,6 +64,10 @@ impl HnswIndex {
     }
 
     pub fn get_user_id(&self, internal_id: usize) -> i64 {
-        *self.user_ids.get(internal_id).unwrap_or(&-1)
+        if internal_id < self.user_ids.len() {
+            self.user_ids[internal_id]
+        } else {
+            -1
+        }
     }
 }
