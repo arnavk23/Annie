@@ -36,7 +36,7 @@ impl AnnBackend for HnswIndex {
 
     fn search(&self, vector: &[f32], k: usize) -> Vec<usize> {
         self.index
-            .search(vector, k, 50)
+            .search(vector, k, self.ef_search)
             .iter()
             .map(|n| n.d_id) // internal ID
             .collect()
