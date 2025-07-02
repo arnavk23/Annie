@@ -7,14 +7,15 @@ mod concurrency;
 mod backend;
 pub mod hnsw_index;
 mod index_enum;
-mod filters; 
+mod filters;
 
 use pyo3::prelude::*;
+use numpy::{PyReadonlyArray1, PyReadonlyArray2, ToPyArray};
 use crate::backend::AnnBackend;
 use crate::index::AnnIndex;
 use crate::metrics::Distance;
 use crate::concurrency::ThreadSafeAnnIndex;
-use hnsw_index::HnswIndex;
+use crate::hnsw_index::HnswIndex;
 
 #[pyclass]
 pub struct PyHnswIndex {
@@ -35,18 +36,30 @@ impl PyHnswIndex {
     }
 
     fn add(&mut self, py: Python, data: PyReadonlyArray2<f32>, ids: PyReadonlyArray1<i64>) -> PyResult<()> {
+        if !data.dtype().is_equivalent_to(numpy::dtype::<f32>(py)?) {
+            return Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>("Input data must be of type f32"));
+        }
+
+        let dims = self.inner.dims();
+        let shape = data.shape();
+        if shape.len() != 2 || shape[1] != dims {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                format!("Input data must be of shape (n, {})", dims),
+            ));
+        }
+
         let data_slice = data.as_slice()?;
         let ids_slice = ids.as_slice()?;
-        let n_vectors = data.shape()[0];
-        let dims = self.inner.dims;
-        if data.shape().len() != 2 || data.shape()[1] != dims {
-            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Input data must be of shape (n, {})", dims)));
-        }
+        let n_vectors = shape[0];
+
         if ids_slice.len() != n_vectors {
-            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>("ids length must match number of vectors"));
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                "ids length must match number of vectors",
+            ));
         }
+
         for (i, vector) in data_slice.chunks_exact(dims).enumerate() {
-            self.inner.add_item(vector.to_vec(), ids_slice[i]);
+            self.inner.insert(vector, ids_slice[i] as usize);
         }
         Ok(())
     }
@@ -58,15 +71,15 @@ impl PyHnswIndex {
     fn search(&self, py: Python, query: PyReadonlyArray1<f32>, k: usize) -> PyResult<(PyObject, PyObject)> {
         let query_slice = query.as_slice()?;
         let (internal_ids, distances) = self.inner.search(query_slice, k);
-        
-        // Convert to user IDs
-        let user_ids = internal_ids.iter()
-            .map(|&id| *self.inner.user_ids.get(id).unwrap_or(&-1) as i64)
-            .collect::<Vec<_>>();
-        
+
+        let user_ids: Vec<i64> = internal_ids
+            .iter()
+            .map(|&id| self.inner.get_user_id(id))
+            .collect();
+
         Ok((
-            user_ids.into_pyarray(py).to_object(py),
-            distances.into_pyarray(py).to_object(py),
+            user_ids.to_pyarray(py).to_object(py),
+            distances.to_pyarray(py).to_object(py),
         ))
     }
 
@@ -75,8 +88,10 @@ impl PyHnswIndex {
     }
 
     #[staticmethod]
-    fn load(_path: String) -> Self {
-        panic!("load() not supported in hnsw-rs v0.3.2");
+    fn load(_path: String) -> PyResult<Self> {
+        Err(PyErr::new::<pyo3::exceptions::PyNotImplementedError, _>(
+            "load() is not supported in hnsw-rs v0.3.2",
+        ))
     }
 }
 
@@ -88,4 +103,3 @@ fn rust_annie(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<PyHnswIndex>()?;
     Ok(())
 }
-
