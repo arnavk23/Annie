@@ -13,7 +13,8 @@ def benchmark(index_cls, name, dim=128, n=10_000, q=100, k=10):
 
     # Index setup
     index = index_cls(dims=dim)
-    index.add(data, ids)
+    for i in range(n):
+        index.add(data[i], ids[i])
 
     # Warm-up + Timing
     times = []
