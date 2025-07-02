@@ -25,9 +25,8 @@ impl AnnBackend for HnswIndex {
     }
 
     fn add_item(&mut self, item: Vec<f32>) {
-        let internal_id = self.user_ids.len();
-        self.index.insert((&item, internal_id));
-        self.user_ids.push(internal_id as i64); // default internal ID as user ID
+        let internal_id = self.user_ids.len() as i64;
+        self.insert(&item, internal_id); // Use internal ID as user ID
     }
 
     fn build(&mut self) {
