@@ -1,4 +1,6 @@
 use hnsw_rs::prelude::*;
+use pyo3::prelude::*; // For PyResult
+use pyo3::exceptions::PyNotImplementedError; // For PyErr::new
 use crate::backend::AnnBackend;
 use crate::metrics::Distance;
 
@@ -33,9 +35,9 @@ impl AnnBackend for HnswIndex {
         // No-op: HNSW builds during insertion
     }
 
-    fn search(&self, vector: &[f32], k: usize) -> Vec<usize> {
+   fn search(&self, vector: &[f32], k: usize) -> (Vec<i64>, Vec<f32>) {
         self.index
-            .search(vector, k, self.ef_search)
+            .search(vector, k, 50)
             .iter()
             .map(|n| self.get_user_id(n.d_id)) // map to user ID
             .collect()
