@@ -40,6 +40,12 @@ impl PyHnswIndex {
             return Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>("Input data must be of type f32"));
         }
 
+        if !ids.dtype().is_equiv_to(numpy::dtype::<i64>(py)) {
+            return Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
+                "ids array must be of type i64",
+            ));
+        }
+        
         let dims = self.inner.dims();
         let shape = data.shape();
         if shape.len() != 2 || shape[1] != dims {
