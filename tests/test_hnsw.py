@@ -19,4 +19,4 @@ def test_hnsw_basic():
     assert len(ids) == 10
     assert len(dists) == 10
     assert all(isinstance(i, (int, np.integer)) for i in ids)
-    assert all(isinstance(d, float) for d in dists)
+    assert all(isinstance(d, (float, np.floating)) for d in dists)
