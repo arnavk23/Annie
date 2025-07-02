@@ -5,13 +5,13 @@ use crate::metrics::Distance;
 pub struct HnswIndex {
     index: Hnsw<'static, f32, DistL2>,
     dims: usize,
-    user_ids: Vec<i64>, // Maps internal IDs to user IDs
+    user_ids: Vec<i64>, // Maps internal ID → user ID
 }
 
 impl AnnBackend for HnswIndex {
     fn new(dims: usize, _distance: Distance) -> Self {
         let index = Hnsw::new(
-            16,     // M: number of bi-directional links
+            16,     // M
             10_000, // max elements
             16,     // ef_construction
             200,    // ef_search
@@ -26,20 +26,19 @@ impl AnnBackend for HnswIndex {
 
     fn add_item(&mut self, item: Vec<f32>) {
         let internal_id = self.user_ids.len();
-        self.index.insert(&item, internal_id);
-        // Placeholder for user ID - will be mapped in actual implementation
-        self.user_ids.push(internal_id as i64);
+        self.index.insert((&item, internal_id));
+        self.user_ids.push(internal_id as i64); // default internal ID as user ID
     }
 
     fn build(&mut self) {
-        // No-op for HNSW (built during insertion)
+        // No-op: HNSW builds during insertion
     }
 
     fn search(&self, vector: &[f32], k: usize) -> Vec<usize> {
         self.index
-            .search(vector, k, 50) // ef = 50
+            .search(vector, k, 50)
             .iter()
-            .map(|n| self.user_ids.get(n.d_id).copied().unwrap_or_default() as usize)
+            .map(|n| n.d_id) // internal ID
             .collect()
     }
 
@@ -49,5 +48,21 @@ impl AnnBackend for HnswIndex {
 
     fn load(_path: &str) -> Self {
         unimplemented!("HNSW load not implemented yet");
+    }
+}
+
+impl HnswIndex {
+    pub fn insert(&mut self, item: &[f32], user_id: i64) {
+        let internal_id = self.user_ids.len();
+        self.index.insert((item, internal_id));
+        self.user_ids.push(user_id);
+    }
+
+    pub fn dims(&self) -> usize {
+        self.dims
+    }
+
+    pub fn get_user_id(&self, internal_id: usize) -> i64 {
+        *self.user_ids.get(internal_id).unwrap_or(&-1)
     }
 }
