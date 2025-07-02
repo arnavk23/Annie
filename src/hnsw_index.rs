@@ -42,8 +42,10 @@ impl AnnBackend for HnswIndex {
             .collect()
     }
 
-    fn save(&self, _path: &str) {
-        unimplemented!("HNSW save not implemented yet");
+    fn save(&self, _path: &str) -> PyResult<()> {
+        Err(PyErr::new::<pyo3::exceptions::PyNotImplementedError, _>(
+            "save() is not supported in hnsw-rs v0.3.2",
+        ))
     }
 
     fn load(_path: &str) -> Self {
