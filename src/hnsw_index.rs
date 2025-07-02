@@ -38,7 +38,7 @@ impl AnnBackend for HnswIndex {
         self.index
             .search(vector, k, self.ef_search)
             .iter()
-            .map(|n| n.d_id) // internal ID
+            .map(|n| self.get_user_id(n.d_id)) // map to user ID
             .collect()
     }
 
