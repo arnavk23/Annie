@@ -1,12 +1,13 @@
-# Using `ThreadSafeAnnIndex` for Concurrent Access
+# Using `ThreadSafeAnnIndex` and `PyHnswIndex` for Concurrent Access
 
-Annie exposes a thread-safe version of its ANN index (`AnnIndex`) for use in Python. This is useful when you want to perform parallel search or update operations from Python threads.
+Annie exposes a thread-safe version of its ANN index (`AnnIndex`) for use in Python. This is useful when you want to perform parallel search or update operations from Python threads. Additionally, the `PyHnswIndex` class provides a Python interface to the HNSW index, which now includes enhanced data handling capabilities.
 
 ## Key Features
 
 - Safe concurrent read access (`search`, `search_batch`)
 - Exclusive write access (`add`, `remove`)
 - Backed by Rust `RwLock` and exposed via PyO3
+- `PyHnswIndex` supports mapping internal IDs to user IDs and handling vector data efficiently
 
 ## Example
 
@@ -32,6 +33,20 @@ def run_search():
 threads = [threading.Thread(target=run_search) for _ in range(4)]
 [t.start() for t in threads]
 [t.join() for t in threads]
+
+# Using PyHnswIndex
+from rust_annie import PyHnswIndex
+
+# Create HNSW index
+hnsw_index = PyHnswIndex(dims=128)
+
+# Add vectors to HNSW index
+hnsw_index.add(data, ids)
+
+# Search in HNSW index
+query = np.random.rand(128).astype('float32')
+user_ids, distances = hnsw_index.search(query, 10)
+print(user_ids)
 ```
 
 # CI/CD Pipeline for PyPI Publishing
