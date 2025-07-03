@@ -72,7 +72,7 @@ function initSearch () {
     search_input.addEventListener("keyup", doSearch);
   }
   var term = getSearchTermFromLocation();
-  if (term) {
+  if (term && search_input) {
     search_input.value = term;
     doSearch();
   }
