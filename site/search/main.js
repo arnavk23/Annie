@@ -4,7 +4,10 @@ function getSearchTermFromLocation() {
   for (var i = 0; i < sURLVariables.length; i++) {
     var sParameterName = sURLVariables[i].split('=');
     if (sParameterName[0] == 'q') {
-      return decodeURIComponent(sParameterName[1].replace(/\+/g, '%20'));
+      var value = decodeURIComponent(sParameterName[1].replace(/\+/g, '%20'));
+      // Only allow alphanumeric and basic punctuation in search term
+      value = value.replace(/[^\w\s\-\.,:;!?()\[\]{}'"@]/g, '');
+      return value;
     }
   }
 }
