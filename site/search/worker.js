@@ -109,13 +109,13 @@ function search (query) {
     return;
   }
 
-  var resultDocuments = [];
-  var results = index.search(query);
   for (var i=0; i < results.length; i++){
     var result = results[i];
-    doc = documents[result.ref];
+    var doc = documents[result.ref];
+    if (!doc) continue;
     doc.summary = doc.text.substring(0, 200);
     resultDocuments.push(doc);
+
   }
   return resultDocuments;
 }
