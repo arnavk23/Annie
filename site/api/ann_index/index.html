@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>AnnIndex - Annie Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "AnnIndex";
+        var mkdocs_page_input_path = "api\\ann_index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Annie Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">AnnIndex</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#constructor">Constructor</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#annindexdim-int-metric-distance">AnnIndex(dim: int, metric: Distance)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#new_minkowskidim-int-p-float">new_minkowski(dim: int, p: float)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#methods">Methods</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#adddata-ndarray-ids-ndarray">add(data: ndarray, ids: ndarray)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#searchquery-ndarray-k-int-tuplendarray-ndarray">search(query: ndarray, k: int) -&gt; Tuple[ndarray, ndarray]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#search_batchqueries-ndarray-k-int-tuplendarray-ndarray">search_batch(queries: ndarray, k: int) -&gt; Tuple[ndarray, ndarray]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#search_filter_pyquery-ndarray-k-int-filter_fn-callableint-bool-tuplendarray-ndarray">search_filter_py(query: ndarray, k: int, filter_fn: Callable[[int], bool]) -&gt; Tuple[ndarray, ndarray]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#savepath-str">save(path: str)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#static-loadpath-str-annindex">static load(path: str) -&gt; AnnIndex</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example">Example</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../hnsw_index/">PyHnswIndex</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../threadsafe_index/">ThreadSafeAnnIndex</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Features</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../concurrency/">Concurrency</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../filtering/">Filtered Search</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../examples/">Examples</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Annie Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">API Reference</li>
+      <li class="breadcrumb-item active">AnnIndex</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="annindex-brute-force-nearest-neighbor-search">AnnIndex - Brute-force Nearest Neighbor Search<a class="headerlink" href="#annindex-brute-force-nearest-neighbor-search" title="Permanent link">&para;</a></h1>
+<p>The <code>AnnIndex</code> class provides efficient brute-force nearest neighbor search with support for multiple distance metrics.</p>
+<h2 id="constructor">Constructor<a class="headerlink" href="#constructor" title="Permanent link">&para;</a></h2>
+<h3 id="annindexdim-int-metric-distance"><code>AnnIndex(dim: int, metric: Distance)</code><a class="headerlink" href="#annindexdim-int-metric-distance" title="Permanent link">&para;</a></h3>
+<p>Creates a new brute-force index.</p>
+<ul>
+<li><code>dim</code> (int): Vector dimension</li>
+<li><code>metric</code> (Distance): Distance metric (<code>EUCLIDEAN</code>, <code>COSINE</code>, <code>MANHATTAN</code>, <code>CHEBYSHEV</code>)</li>
+</ul>
+<h3 id="new_minkowskidim-int-p-float"><code>new_minkowski(dim: int, p: float)</code><a class="headerlink" href="#new_minkowskidim-int-p-float" title="Permanent link">&para;</a></h3>
+<p>Creates a Minkowski distance index.</p>
+<ul>
+<li><code>dim</code> (int): Vector dimension</li>
+<li><code>p</code> (float): Minkowski exponent (p &gt; 0)</li>
+</ul>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<h3 id="adddata-ndarray-ids-ndarray"><code>add(data: ndarray, ids: ndarray)</code><a class="headerlink" href="#adddata-ndarray-ids-ndarray" title="Permanent link">&para;</a></h3>
+<p>Add vectors to the index.</p>
+<ul>
+<li><code>data</code>: N×dim array of float32 vectors</li>
+<li><code>ids</code>: N-dimensional array of int64 IDs</li>
+</ul>
+<h3 id="searchquery-ndarray-k-int-tuplendarray-ndarray"><code>search(query: ndarray, k: int) -&gt; Tuple[ndarray, ndarray]</code><a class="headerlink" href="#searchquery-ndarray-k-int-tuplendarray-ndarray" title="Permanent link">&para;</a></h3>
+<p>Search for k nearest neighbors.</p>
+<ul>
+<li><code>query</code>: dim-dimensional query vector</li>
+<li><code>k</code>: Number of neighbors to return</li>
+<li>Returns: (neighbor IDs, distances)</li>
+</ul>
+<h3 id="search_batchqueries-ndarray-k-int-tuplendarray-ndarray"><code>search_batch(queries: ndarray, k: int) -&gt; Tuple[ndarray, ndarray]</code><a class="headerlink" href="#search_batchqueries-ndarray-k-int-tuplendarray-ndarray" title="Permanent link">&para;</a></h3>
+<p>Batch search for multiple queries.</p>
+<ul>
+<li><code>queries</code>: M×dim array of queries</li>
+<li><code>k</code>: Number of neighbors per query</li>
+<li>Returns: (M×k IDs, M×k distances)</li>
+</ul>
+<h3 id="search_filter_pyquery-ndarray-k-int-filter_fn-callableint-bool-tuplendarray-ndarray"><code>search_filter_py(query: ndarray, k: int, filter_fn: Callable[[int], bool]) -&gt; Tuple[ndarray, ndarray]</code><a class="headerlink" href="#search_filter_pyquery-ndarray-k-int-filter_fn-callableint-bool-tuplendarray-ndarray" title="Permanent link">&para;</a></h3>
+<p>Search with ID filtering.</p>
+<ul>
+<li><code>query</code>: dim-dimensional query vector</li>
+<li><code>k</code>: Maximum neighbors to return</li>
+<li><code>filter_fn</code>: Function that returns True for allowed IDs</li>
+<li>Returns: (filtered IDs, filtered distances)</li>
+</ul>
+<h3 id="savepath-str"><code>save(path: str)</code><a class="headerlink" href="#savepath-str" title="Permanent link">&para;</a></h3>
+<p>Save index to disk.</p>
+<h3 id="static-loadpath-str-annindex"><code>static load(path: str) -&gt; AnnIndex</code><a class="headerlink" href="#static-loadpath-str-annindex" title="Permanent link">&para;</a></h3>
+<p>Load index from disk.</p>
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">import numpy as np
+from rust_annie import AnnIndex, Distance
+
+# Create index
+index = AnnIndex(128, Distance.EUCLIDEAN)
+
+# Add data
+data = np.random.rand(1000, 128).astype(np.float32)
+ids = np.arange(1000, dtype=np.int64)
+index.add(data, ids)
+
+# Search
+query = np.random.rand(128).astype(np.float32)
+neighbor_ids, distances = index.search(query, k=5)
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../.." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../hnsw_index/" class="btn btn-neutral float-right" title="PyHnswIndex">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../.." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../hnsw_index/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

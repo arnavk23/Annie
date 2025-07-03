@@ -1,6 +1,3 @@
-// src/index.rs
-
-
 use pyo3::prelude::*;
 use numpy::{PyReadonlyArray1, PyReadonlyArray2, IntoPyArray};
 use ndarray::Array2;
@@ -14,6 +11,13 @@ use crate::errors::RustAnnError;
 
 /// A brute-force k-NN index with cached norms, Rayon parallelism,
 /// and support for L1, L2, Cosine, Chebyshev, and Minkowski-p distances.
+/// 
+/// /// Args:
+///     dim (int): Vector dimension
+///     metric (Distance): Distance metric to use
+///
+/// Example:
+///     index = AnnIndex(128, Distance.EUCLIDEAN)
 #[pyclass]
 #[derive(Serialize, Deserialize)]
 pub struct AnnIndex {
@@ -28,6 +32,10 @@ pub struct AnnIndex {
 #[pymethods]
 impl AnnIndex {
     /// Create a new index for unit-variant metrics (Euclidean, Cosine, Manhattan, Chebyshev).
+    /// 
+    /// /// Args:
+    ///     dim (int): Vector dimension
+    ///     metric (Distance): Distance metric
     #[new]
     pub fn new(dim: usize, metric: Distance) -> PyResult<Self> {
         if dim == 0 {
@@ -42,6 +50,10 @@ impl AnnIndex {
     }
 
     /// Create a new index using Minkowski-p distance (p > 0).
+    /// 
+    /// Args:
+    ///     dim (int): Vector dimension
+    ///     p (float): Minkowski exponent (p > 0)
     #[staticmethod]
     pub fn new_minkowski(dim: usize, p: f32) -> PyResult<Self> {
         if dim == 0 {
@@ -59,6 +71,10 @@ impl AnnIndex {
     }
 
     /// Add a batch of vectors (shape: N×dim) with integer IDs.
+    /// 
+    /// Args:
+    ///     data (ndarray): N x dim array of vectors
+    ///     ids (ndarray): N-dimensional array of IDs
     pub fn add(
         &mut self,
         _py: Python,
@@ -94,6 +110,13 @@ impl AnnIndex {
     }
 
     /// Search the k nearest neighbors for a single query vector.
+    /// 
+    /// Args:
+    ///     query (ndarray): Query vector (dim-dimensional)
+    ///     k (int): Number of neighbors to return
+    ///
+    /// Returns:
+    ///     Tuple[ndarray, ndarray]: (neighbor IDs, distances)
     pub fn search(
         &self,
         py: Python,
@@ -116,6 +139,14 @@ impl AnnIndex {
     }
 
     /// Batch-search k nearest neighbors for each row in an (N×dim) array.
+    /// 
+    /// Args:
+    ///     query (ndarray): Query vector
+    ///     k (int): Number of neighbors
+    ///     filter_fn (Callable[[int], bool]): Filter function
+    ///
+    /// Returns:
+    ///     Tuple[ndarray, ndarray]: Filtered (neighbor IDs, distances)
     pub fn search_batch(
         &self,
         py: Python,
