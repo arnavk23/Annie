@@ -102,6 +102,6 @@ if __name__ == "__main__":
 
 ### See also
 
-- Example usage: [`scripts/filter_example.py`](scripts/filter_example.py)
-- Unit tests covering filter behavior: [`tests/test_filters.py`](tests/test_filters.py)
-- Benchmarking script: [`scripts/compare.py`](scripts/compare.py)
+- Example usage: [`scripts/filter_example.py`](../scripts/filter_example.py)
+- Unit tests covering filter behavior: [`tests/test_filters.py`](../tests/test_filters.py)
+- Benchmarking script: [`scripts/compare.py`](../scripts/compare.py)
