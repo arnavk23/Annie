@@ -33,24 +33,23 @@ function formatResult (location, title, summary) {
 }
 
 function displayResults (results) {
-  var search_results = document.getElementById("mkdocs-search-results");
-  while (search_results.firstChild) {
-    search_results.removeChild(search_results.firstChild);
-  }
-  if (results.length > 0){
-    for (var i=0; i < results.length; i++){
-      var result = results[i];
-      var html = formatResult(result.location, result.title, result.summary);
-      search_results.insertAdjacentHTML('beforeend', html);
+  function displayResults (results) {
+    var search_results = document.getElementById("mkdocs-search-results");
+    var html = '';
+    if (results.length > 0){
+      for (var i=0; i < results.length; i++){
+        var result = results[i];
+        html += formatResult(result.location, result.title, result.summary);
+      }
+    } else {
+      var noResultsText = search_results.getAttribute('data-no-results-text');
+      if (!noResultsText) {
+        noResultsText = "No results found";
+      }
+      html = '<p>' + noResultsText + '</p>';
     }
-  } else {
-    var noResultsText = search_results.getAttribute('data-no-results-text');
-    if (!noResultsText) {
-      noResultsText = "No results found";
-    }
-    search_results.insertAdjacentHTML('beforeend', '<p>' + noResultsText + '</p>');
+    search_results.innerHTML = html;
   }
-}
 
 function doSearch () {
   var query = document.getElementById('mkdocs-search-query').value;
