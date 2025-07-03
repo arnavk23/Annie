@@ -1,3 +1,4 @@
+```markdown
 ## ANN Search Filtering
 
 This document explains how to use the filtering capabilities to improve Approximate Nearest Neighbor (ANN) search.
@@ -50,6 +51,40 @@ This library supports applying filters to narrow down ANN search results dynamic
 | **Custom predicate** | `Filter.custom(lambda metadata: ...)`       |
 
 Filters work on the metadata you provide when adding items to the index.
+
+### New Feature: Filtered Search with Custom Python Callbacks
+
+The library now supports filtered search using custom Python callbacks, allowing for more complex filtering logic directly in Python.
+
+#### Example: Filtered Search with Python Callback
+
+```python
+from rust_annie import AnnIndex, Distance
+import numpy as np
+
+# Create index
+index = AnnIndex(3, Distance.EUCLIDEAN)
+data = np.array([
+    [1.0, 2.0, 3.0],
+    [4.0, 5.0, 6.0],
+    [7.0, 8.0, 9.0]
+], dtype=np.float32)
+ids = np.array([10, 20, 30], dtype=np.int64)
+index.add(data, ids)
+
+# Filter function
+def even_ids(id: int) -> bool:
+    return id % 2 == 0
+
+# Filtered search
+query = np.array([1.0, 2.0, 3.0], dtype=np.float32)
+filtered_ids, filtered_dists = index.search_filter_py(
+    query, 
+    k=3, 
+    filter_fn=even_ids
+)
+print(filtered_ids)  # [10, 30] (20 is filtered out)
+```
 
 ### Sorting Behavior
 
@@ -105,3 +140,4 @@ if __name__ == "__main__":
 - Example usage: [`scripts/filter_example.py`](../scripts/filter_example.py)
 - Unit tests covering filter behavior: [`tests/test_filters.py`](../tests/test_filters.py)
 - Benchmarking script: [`scripts/compare.py`](../scripts/compare.py)
+```
