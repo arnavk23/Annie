@@ -105,6 +105,3 @@ if __name__ == "__main__":
 - Example usage: [`scripts/filter_example.py`](../scripts/filter_example.py)
 - Unit tests covering filter behavior: [`tests/test_filters.py`](../tests/test_filters.py)
 - Benchmarking script: [`scripts/compare.py`](../scripts/compare.py)
-```
-
-This updated documentation includes the new `search_filter_py` method, providing details on its usage, examples, and integration with the existing ANN search logic. The structure and style of the original document have been maintained while incorporating the necessary updates.
