@@ -1,4 +1,3 @@
-```markdown
 ## ANN Search Filtering
 
 This document explains how to use the filtering capabilities to improve Approximate Nearest Neighbor (ANN) search.
