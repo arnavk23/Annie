@@ -207,12 +207,13 @@ impl AnnIndex {
     pub fn len(&self) -> usize {
         self.entries.len()
     }
-
     /// Get the dimension of vectors in the index.
     pub fn dim(&self) -> usize {
+        if self.entries.is_empty() {
+            panic!("Cannot get dimension of empty index");
+        }
         self.dim
     }
-
 }
 
 impl AnnIndex {
