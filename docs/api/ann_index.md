@@ -46,6 +46,16 @@ Search with ID filtering.
 - `filter_fn`: Function that returns True for allowed IDs
 - Returns: (filtered IDs, filtered distances)
 
+### `len() -> int`
+Get the number of entries in the index.
+
+- Returns: Number of entries in the index
+
+### `dim() -> int`
+Get the dimension of vectors in the index.
+
+- Returns: Dimension of vectors
+
 ### `save(path: str)`
 Save index to disk.
 
@@ -64,6 +74,10 @@ index = AnnIndex(128, Distance.EUCLIDEAN)
 data = np.random.rand(1000, 128).astype(np.float32)
 ids = np.arange(1000, dtype=np.int64)
 index.add(data, ids)
+
+# Check index properties
+print("Number of entries:", index.len())
+print("Dimension of vectors:", index.dim())
 
 # Search
 query = np.random.rand(128).astype(np.float32)
@@ -116,6 +130,10 @@ data = np.random.rand(1000, 128).astype(np.float32)
 ids = np.arange(1000, dtype=np.int64)
 index.add(data, ids)
 
+# Check index properties
+print("Number of entries:", index.len())
+print("Dimension of vectors:", index.dim())
+
 # Search
 query = np.random.rand(128).astype(np.float32)
 neighbor_ids, distances = index.search(query, k=5)
@@ -150,6 +168,10 @@ data = np.random.rand(50, 4).astype(np.float32)
 ids = np.arange(50, dtype=np.int64)
 idx.add(data, ids)
 
+# Check index properties
+print("Number of entries:", idx.len())
+print("Dimension of vectors:", idx.dim())
+
 # Search
 labels, dists = idx.search(data[10], k=3)
 print(labels, dists)
@@ -167,6 +189,10 @@ idx = AnnIndex(16, Distance.EUCLIDEAN)
 data = np.random.rand(1000, 16).astype(np.float32)
 ids = np.arange(1000, dtype=np.int64)
 idx.add(data, ids)
+
+# Check index properties
+print("Number of entries:", idx.len())
+print("Dimension of vectors:", idx.dim())
 
 # Batch search
 queries = data[:32]
@@ -187,6 +213,10 @@ idx = ThreadSafeAnnIndex(32, Distance.EUCLIDEAN)
 data = np.random.rand(500, 32).astype(np.float32)
 ids = np.arange(500, dtype=np.int64)
 idx.add(data, ids)
+
+# Check index properties
+print("Number of entries:", idx.len())
+print("Dimension of vectors:", idx.dim())
 
 # Concurrent searches
 def task(q):
@@ -213,6 +243,10 @@ data = np.array([
 ], dtype=np.float32)
 ids = np.array([10, 20, 30], dtype=np.int64)
 index.add(data, ids)
+
+# Check index properties
+print("Number of entries:", index.len())
+print("Dimension of vectors:", index.dim())
 
 # Filter function
 def even_ids(id: int) -> bool:
@@ -267,6 +301,8 @@ You’ll find:
 | search(query, k)	                    | Single query search                        | 
 | search_batch(queries, k)              | Batch query search                         | 
 | search_filter_py(query, k, filter_fn) | Filtered search                            | 
+| len()                                 | Get the number of entries in the index     |
+| dim()                                 | Get the dimension of vectors in the index  |
 | save(path)                            | Save index to disk                         | 
 | load(path)                            | Load index from disk                       | 
 
