@@ -4,6 +4,7 @@ use pyo3::Python;
 
 #[test]
 fn test_brute_backend() {
+    pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
         let mut index = AnnIndex::new(3, Distance::Euclidean).unwrap();
 
@@ -34,6 +35,7 @@ fn test_brute_backend() {
 
 #[test]
 fn test_hnsw_backend() {
+    pyo3::prepare_freethreaded_python();
     Python::with_gil(|py| {
         let mut index = AnnIndex::new(3, Distance::Euclidean).unwrap();
 

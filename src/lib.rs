@@ -51,6 +51,7 @@
 //! loaded = AnnIndex.load("my_index.bin")
 //! ```
 
+mod utils;
 pub mod index;
 mod storage;
 pub mod metrics;
