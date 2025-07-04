@@ -46,6 +46,16 @@ Search with ID filtering.
 - `filter_fn`: Function that returns True for allowed IDs
 - Returns: (filtered IDs, filtered distances)
 
+### `len() -> int`
+Get the number of entries in the index.
+
+- Returns: Number of entries in the index
+
+### `dim() -> int`
+Get the dimension of vectors in the index.
+
+- Returns: Dimension of vectors
+
 ### `save(path: str)`
 Save index to disk.
 
@@ -64,6 +74,10 @@ index = AnnIndex(128, Distance.EUCLIDEAN)
 data = np.random.rand(1000, 128).astype(np.float32)
 ids = np.arange(1000, dtype=np.int64)
 index.add(data, ids)
+
+# Check index properties
+print("Number of entries:", index.len())
+print("Dimension of vectors:", index.dim())
 
 # Search
 query = np.random.rand(128).astype(np.float32)
@@ -116,6 +130,10 @@ data = np.random.rand(1000, 128).astype(np.float32)
 ids = np.arange(1000, dtype=np.int64)
 index.add(data, ids)
 
+# Check index properties
+print("Number of entries:", index.len())
+print("Dimension of vectors:", index.dim())
+
 # Search
 query = np.random.rand(128).astype(np.float32)
 neighbor_ids, distances = index.search(query, k=5)
@@ -150,6 +168,10 @@ data = np.random.rand(50, 4).astype(np.float32)
 ids = np.arange(50, dtype=np.int64)
 idx.add(data, ids)
 
+# Check index properties
+print("Number of entries:", idx.len())
+print("Dimension of vectors:", idx.dim())
+
 # Search
 labels, dists = idx.search(data[10], k=3)
 print(labels, dists)
@@ -167,6 +189,10 @@ idx = AnnIndex(16, Distance.EUCLIDEAN)
 data = np.random.rand(1000, 16).astype(np.float32)
 ids = np.arange(1000, dtype=np.int64)
 idx.add(data, ids)
+
+# Check index properties
+print("Number of entries:", idx.len())
+print("Dimension of vectors:", idx.dim())
 
 # Batch search
 queries = data[:32]
@@ -187,6 +213,10 @@ idx = ThreadSafeAnnIndex(32, Distance.EUCLIDEAN)
 data = np.random.rand(500, 32).astype(np.float32)
 ids = np.arange(500, dtype=np.int64)
 idx.add(data, ids)
+
+# Check index properties
+print("Number of entries:", idx.len())
+print("Dimension of vectors:", idx.dim())
 
 # Concurrent searches
 def task(q):
@@ -214,6 +244,10 @@ data = np.array([
 ids = np.array([10, 20, 30], dtype=np.int64)
 index.add(data, ids)
 
+# Check index properties
+print("Number of entries:", index.len())
+print("Dimension of vectors:", index.dim())
+
 # Filter function
 def even_ids(id: int) -> bool:
     return id % 2 == 0
@@ -240,9 +274,9 @@ That’s a \~4× speedup vs. NumPy!
 
 | Operation	           | Dataset Size  | Time (ms) | Speedup vs Python | 
 | -------------------- | ------------- | --------- | ----------------- | 
-| Single Query (Brute) | 10,000 × 64   | 0.7	   | 4×                | 
-| Batch Query (64)	   | 10,000 × 64   | 0.23	   | 12×               | 
-| HNSW Query	       | 100,000 × 128 | 0.05	   | 56×               |
+| Single Query (Brute) | 10,000 × 64   | 0.7	     | 4×                | 
+| Batch Query (64)	   | 10,000 × 64   | 0.23	     | 12×               | 
+| HNSW Query	         | 100,000 × 128 | 0.05	     | 56×               |
 
 ##### [View Full Benchmark Dashboard →](https://programmers-paradise.github.io/Annie/)
 
@@ -255,7 +289,7 @@ You’ll find:
 | Class              | Description                                |
 | ------------------ | ------------------------------------------ |
 | AnnIndex	         | Brute-force exact search                   |
-| PyHnswIndex	     | Approximate HNSW index                     |
+| PyHnswIndex	       | Approximate HNSW index                     |
 | ThreadSafeAnnIndex | 	Thread-safe wrapper for AnnIndex          |
 | Distance           | 	Distance metrics (Euclidean, Cosine, etc) |
 
@@ -263,10 +297,12 @@ You’ll find:
 
 | Method                                | Description                                | 
 | ------------------------------------- | ------------------------------------------ |
-| add(data, ids)	                    | Add vectors to index                       | 
+| add(data, ids)	                      | Add vectors to index                       | 
 | search(query, k)	                    | Single query search                        | 
 | search_batch(queries, k)              | Batch query search                         | 
 | search_filter_py(query, k, filter_fn) | Filtered search                            | 
+| len()                                 | Get the number of entries in the index     |
+| dim()                                 | Get the dimension of vectors in the index  |
 | save(path)                            | Save index to disk                         | 
 | load(path)                            | Load index from disk                       | 
 
