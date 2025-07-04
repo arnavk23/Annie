@@ -41,6 +41,7 @@ pub fn compute_distances_with_ids(
 }
 
 fn dot(a: &[f32], b: &[f32]) -> f32 {
+    assert_eq!(a.len(), b.len(), "dot: input slices must have the same length");
     a.iter().zip(b).map(|(x, y)| x * y).sum()
 }
 
