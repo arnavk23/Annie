@@ -32,7 +32,7 @@ pub fn compute_distances_with_ids(
         })
         .collect();
 
-    results.sort_by(|a, b| a.1.total_cmp(&b.1));
+    results.select_nth_unstable_by(k, |a, b| a.1.total_cmp(&b.1));
     results.truncate(k);
 
     let ids = results.iter().map(|(i, _)| *i).collect();
