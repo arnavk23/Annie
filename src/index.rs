@@ -202,6 +202,17 @@ impl AnnIndex {
         let full = format!("{}.bin", path);
         load_index(&full).map_err(|e| e.into_pyerr())
     }
+
+    /// Get the number of entries in the index.
+    pub fn len(&self) -> usize {
+        self.entries.len()
+    }
+
+    /// Get the dimension of vectors in the index.
+    pub fn dim(&self) -> usize {
+        self.dim
+    }
+
 }
 
 impl AnnIndex {
