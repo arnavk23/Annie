@@ -269,7 +269,7 @@ impl AnnBackend for AnnIndex {
             k,
         );
 
-        ids.into_iter().map(|id| id as usize).collect()
+        ids.into_iter().filter_map(|id| if id >= 0 { Some(id as usize) } else { None }).collect()
     }
 
     fn save(&self, path: &str) {
