@@ -208,7 +208,13 @@ You’ll find:
 | ThreadSafeAnnIndex | 	Thread-safe wrapper for AnnIndex          |
 | Distance           | 	Distance metrics (Euclidean, Cosine, etc) |
 
-## Key Methods
+### Utility Module
+
+| Module | Description |
+| ------ | ----------- |
+| utils  | Provides utility functions for distance computation |
+
+### Key Methods
 
 | Method                                | Description                                | 
 | ------------------------------------- | ------------------------------------------ |
@@ -218,6 +224,12 @@ You’ll find:
 | search_filter_py(query, k, filter_fn) | Filtered search                            | 
 | save(path)                            | Save index to disk                         | 
 | load(path)                            | Load index from disk                       | 
+
+### Utility Functions
+
+| Function                             | Description                                |
+| ------------------------------------ | ------------------------------------------ |
+| compute_distances_with_ids(entries, query, query_sq_norm, metric, minkowski_p, k) | Computes distances and returns sorted IDs and distances |
 
 ## Development & CI
 
